@@ -1,0 +1,95 @@
+<!-- demo,auth,post and news,like comment,friends chat,pages,speed 2x -->
+<html>
+    <head>
+        <title>Social Network</title>
+        <link rel="stylesheet" href="/public/css/main.min.css">
+        <link rel="stylesheet" href="/public/css/style.css">
+        <link rel="stylesheet" href="/public/css/color.css">
+        <link rel="stylesheet" href="/public/css/responsive.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    </head>
+    <body style="background-image: url('../public/img/background.gif');background-repeat: no-repeat;background-position: right;">
+        <div class="theme-layout" style="margin-left: -300px;">
+            <div class="container-fluid pdng0">
+                <div class="row merged"> 
+                    <div class="offset-md-3 col-md-6">
+                        <div class="login-reg-bg">
+                            <div id="error">
+                            </div>
+                            <div class="log-reg-area sign">
+                                <h2 class="log-title">Login</h2>
+                                <form onsubmit="return doLogin(this);">
+                                    <div class="form-group">
+                                        <input type="text" name="email" required/>
+                                        <label class="control-label">Email</label>
+                                        <i class="mtrl-select"></i>
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="password" name="password" required/>
+                                        <label class="control-label">Password</label>
+                                        <i class="mtrl-select"></i>
+                                    </div>
+                                    <a href="/signup" style="text-decoration: none;">Dont't have an account, Click here!</a>
+                                    <div class="submit-btns">
+                                        <button  class="mtr-btn signup" name="submit">
+                                            <span>Login</span>
+                                        </button>
+                                    </div>
+                                </form> 
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            function doLogin(form){
+                form.submit.setAttribute("disabled","disabled");
+                form.submit.innerHTML = "<span>Loading...<span>";
+
+                    var ajax = new XMLHttpRequest();
+                        ajax.open("POST","/login", true)
+                    ajax.onreadystatechange = function(){
+                        if (this.status === 200 && this.readyState == 4) {
+                            form.submit.removeAttribute("disabled");
+                            form.submit.innerHTML = "<span>Login</span>";
+                            var response = JSON.parse(this.responseText);
+                            // console.log(this.responseURL);
+                            if (response.status == "success") {
+                                var accessToken = response.accessToken;
+                                localStorage.setItem("accessToken", accessToken);
+                                if (response.profileImage=="") {
+                                    window.location.href = '/updateProfile'
+                                }else{
+                                    window.location.href = '/'
+                                }
+                            }else{
+                            // alert(response.message);
+                            var i = document.getElementById('error')
+                            var d = document.createElement('div');
+                            var b = document.createElement('button');
+                            i.className = "alert alert-danger alert-dismissible"
+                            // d.className = "alert alert-danger alert-dismissible";
+                            i.innerHTML =response.message;
+                            b.innerHTML = "x";
+                            b.type = "button";
+                            b.className = "close";
+                            b.setAttribute("data-dismiss","alert")
+                            i.appendChild(b)
+                            // i.appendChild(d);
+                        }
+                        }
+                    }
+                    // console.log(new FormData(form));
+                ajax.send(new FormData(form))    
+                return false; 
+            }
+        </script>
+    </body>
+
+</html>
