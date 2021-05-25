@@ -31,15 +31,15 @@
 							<%- include ("includes/left-sidebar") %>
 						</div>
 
-						<div class="col-md-6">
+						<div class="col-md-8">
 							<div class="central-meta">
                                 <div class="messages">
                                     <h5 class="f-title">
                                         <i class="ti-bell"></i>
                                         All Messages
-                                        <span class="more-options">
+                                        <!-- <span class="more-options">
                                             <i class="fa fa-ellipsis-h"></i>
-                                        </span>
+                                        </span> -->
                                     </h5>
                                     <div class="message-box">
                                         <ul class="peoples" id="friends"></ul>
@@ -48,7 +48,7 @@
                                             <ul class="chatting-area" id="chatting-area"></ul>
                                             <div class="message-text-container">
                                                 <form onsubmit="return doSendMessage(this);">
-                                                    <textarea name="message"></textarea>
+                                                    <textarea name="message" placeholder="Enter message here...." required></textarea>
                                                     <button title="send">
                                                         <i class="fa fa-paper-plane"></i>
                                                     </button>
@@ -104,7 +104,9 @@
         console.log(selectedFriend);
         var html = "";
         html += '<figure>';
-            html+= '<img src"'+ mainURL + '/' + selectedFriend.profileImage + '">';
+            // html+= '<img src"'+ mainURL + '/' + selectedFriend.profileImage + '">';
+            html += '<img src="' + mainURL + "/" + selectedFriend.profileImage + '">';
+
             // html+='<img src="' + mainURL + '/' + data.profileImage + '">';
         console.log(mainURL+'/'+selectedFriend.profileImage);
         html+= '</figure>';

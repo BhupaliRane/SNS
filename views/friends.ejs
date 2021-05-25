@@ -34,13 +34,17 @@
               html +='<li>';
               html+='<div class="nearly-pepls">';
               html+= '<figure>';
-              html+='<a href="/">';
+            //   html+='<a href="/">';
+                html += '<a href="/user/' + data._id + '">';//first its username instead of name
+
               html+='<img src="' +mainURL + '/' +data.profileImage+ '"  >';
               html+='</a>';
               html+='</figure>';
               html+= '<div class="pepl-info" >';
               html+= '<h4>';
-              html+= '<a href="/">' + data.name + '</a>';
+			 html += '<a href="/user/' + data._id + '">' + data.name+ '</a>';//first its username instead of name
+
+            //   html+= '<a href="/user/"+ data>' + data.name + '</a>';
               html+= '</h4>';
               if (!data.sentByMe && data.status == "Pending") {
                   html+= '<a href="javascript:void(0);" data-id="' + data._id + '" onclick="doAccept(this);" class="add-butn more-action">Accept</a>'; 

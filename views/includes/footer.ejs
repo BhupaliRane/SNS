@@ -21,7 +21,7 @@
                     <form onsubmit="return doPostReply(this);">
                         <input type="hidden" name="postId">
                         <input type="hidden" name="commentId">
-                        <textarea name="reply" placeholder="Post your reply"></textarea>
+                        <textarea name="reply" placeholder="Post your reply" required></textarea>
                         <button type="submit">Post</button>
                     </form>
                 </div>
@@ -52,7 +52,7 @@
                                     window.user = response.data
                                     console.log(window.user,"fromfooter");
                                     if (typeof isUpdateProfile !== "undefined" && isUpdateProfile) {
-                                            showProfileData();                                    
+                                        showProfileData();                                    
                                     }
                                     if (typeof isHomePage !=="undefined" && isHomePage) {
                                         showAddPost();
@@ -64,6 +64,7 @@
                                     }
                                     if (typeof isFriends !== "undefined" && isFriends) {
                                         showFriends();
+                                        storeFriendsLength();
                                     }
                                     if (typeof isPages !== "undefined" && isPages) {
                                         getPages();
@@ -74,11 +75,22 @@
                                     if (typeof isRightSidebar !== "undefined" && isRightSidebar) {
                                         getMyPages();
                                     }
-                                    
+                                    if (typeof isGroups !== "undefined" && isGroups) {
+                                        getGroups();
+                                    }
+                                    if (typeof isGroupDetail !== "undefined" && isGroupDetail) {
+                                        getGroupDetail();
+                                    }
+                                    if (typeof isNotifications !== "undefined" && isNotifications) {
+                                        showNotifications();
+                                        storeNotificationLength();//present in header
+                                    }
                                 }else{
                                     localStorage.removeItem("accessToken")
                                 }
-                                showMainMenu();
+                            showMainMenu();
+                    // updateNotificationLength();
+
                         }
                     }
                     var formData = new FormData();
@@ -117,14 +129,19 @@
                 }
                 document.getElementById('main-menu').innerHTML = html;
             }
-    
+       
             function doLogout(){
-                localStorage.removeItem("accessToken")
+                // storeNotificationLength();
+                localStorage.removeItem("accessToken");
+                localStorage.removeItem("showNotificationLength");
+                localStorage.removeItem("showFriendsLength");
                 return true; 
+                // alert("pls logout")
             }
             
             window.onload = function(){
                 getUser();
+                // updateNotificationLength();
             }
             window.onerror = function(file, line, error){
                 alert(file + "" + line + "" + error,"footer erro")

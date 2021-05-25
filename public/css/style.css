@@ -617,8 +617,8 @@ header.sticky {
 }
 
 .form-group {
-    margin-bottom: 15px;
-    margin-top: 15px;
+    margin-bottom: 10px;
+    margin-top: 10px;
     display: inline-block;
     width: 100%;
 }
@@ -639,7 +639,8 @@ header.sticky {
 /*--- topbar ---*/
 
 .topbar {
-    background: #fff;
+    background-color: #2b2d42;
+    color: #fff;
     display: block;
     height: 60px;
     padding: 0 48px;
@@ -648,10 +649,16 @@ header.sticky {
     position: relative;
 }
 
+.topbar-stick{
+    background-color: #2b2d42;
+    color: white;
+}
+
 .logo {
     display: inline-block;
     vertical-align: inherit;
     width: 15%;
+    padding-left: 4%;
     position: relative;
     z-index: 10;
 }
@@ -687,7 +694,7 @@ header.sticky {
 }
 
 .top-area > ul > li > a {
-    color: #999;
+    color: #ffffff;
 }
 
 .top-area .user-img {
@@ -769,19 +776,13 @@ header.sticky {
     display: block;
     position: relative;
     width: 100%;
-}
-
-.feature-photo > figure {
-    margin-bottom: 0;
-}
-
-.feature-photo > figure img {
-    display: inline-block;
-    width: 100%;
+    background-color: white;
+    border: 1px solid #ede9e9;
+    
 }
 
 .user-avatar {
-    border: 8px solid rgba(255, 255, 255, 0.8);
+    border: 8px solid rgb(255, 255, 255);
     border-radius: 3px 25px 0;
     box-shadow: 0 1px 0 #e1e8ed;
     float: right;
@@ -789,6 +790,7 @@ header.sticky {
     overflow: hidden;
     position: relative;
     width: 100%;
+    left: 100px;
 }
 
 .user-avatar > figure > img {
@@ -798,27 +800,30 @@ header.sticky {
 .user-avatar > figure {
     margin-bottom: 0;
     position: relative;
+    /* left: 100px; */
 }
 
 .timeline-info {
-    background: #fff none repeat scroll 0 0;
+    /* background: #fff none repeat scroll 0 0; */
     display: block;
-    line-height: 59px;
+    /* line-height: 59px; */
     width: 100%;
+    /* border-bottom: 1px solid rgb(201, 201, 201); */
+
 }
 
 .timeline-info > ul {
     display: inline-block;
     list-style: outside none none;
     margin-bottom: 0;
-    padding-left: 20px;
+    padding-left: 0px;
     vertical-align: middle;
     width: 100%;
 }
 
 .timeline-info > ul li {
     display: inline-block;
-    margin-right: 50px;
+    margin-right: 20px;
     position: relative;
 }
 
@@ -847,11 +852,12 @@ header.sticky {
 }
 
 .timeline-info .admin-name > h5 {
-    color: #088dcd;
+    color: #2b2d42;
     display: inline-block;
     font-size: 24px;
     font-weight: 500;
     margin-bottom: 0;
+    text-shadow: cornflowerblue;
     vertical-align: super;
 }
 
@@ -890,10 +896,10 @@ header.sticky {
 }
 
 .edit-phto {
-    background: rgba(0, 0, 0, 0.7) none repeat scroll 0 0;
+    background: rgba(255, 255, 255, 0.7) none repeat scroll 0 0;
     bottom: 100px;
     color: #fff;
-    left: 275px;
+    left: 400px;
     padding: 5px 20px;
     position: absolute;
     z-index: 9;
@@ -908,7 +914,8 @@ header.sticky {
 }
 
 .fileContainer {
-    color: #d8d8d8;
+    cursor: pointer;
+    color: #d1d0d0;
     font-size: 11px;
     margin: 0 0 0 5px;
     position: relative;
@@ -929,6 +936,14 @@ header.sticky {
 }
 
 .edit-phto .fileContainer [type="file"] {
+    cursor: pointer;
+    height: 35px;
+    top: -11px;
+    width: 126px;
+}
+
+.edit-photo .fileContainer [type="file"] {
+    cursor: pointer;
     height: 35px;
     top: -11px;
     width: 126px;
@@ -1107,15 +1122,21 @@ header.sticky {
     background: #f1f1f1 none repeat scroll 0 0;
 }
 
-.add-btn {
-    bottom: 100px;
+#page-like{
+    bottom: 40px;
+    position: absolute;
+    right: 30px;
+}
+
+/* .add-btn {
+    bottom: 15px;
     position: absolute;
     right: 43px;
-}
+} */
 
 .add-btn > span {
     color: #fff;
-    margin-right: 20px;
+    margin-right: 10px;
     text-shadow: 0 2px 0 #4a4a4a;
 }
 
@@ -1133,7 +1154,60 @@ header.sticky {
     border: 1px solid transparent;
 }
 
+.grp-members{
+    background-color: white;
+    width: 100%;
+    padding: 10px;
+    position : absolute;
+}
 
+.add-btn .members-profile{
+    margin-top: 20px;    
+}
+
+#group-members{
+    margin-left: 20px;
+    color: #2b2d42;
+    text-shadow: none;
+}
+
+.add-btn .members-profile ul li{
+    list-style-type: none;
+    margin: 15px -30px;
+}
+
+.add-btn .members-profile ul li img{
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    margin: 5px;
+}
+
+.add-btn .members-profile ul li button{
+    font-size: x-small;
+    float: right;
+    margin-top: 10px;
+    margin-right: 40px;
+    color: mediumaquamarine;
+    border: 1px solid mediumaquamarine;
+    background-color: white;
+}
+
+.add-btn .members-profile ul li a{
+    font-size: x-small;
+    float: right;
+    margin-top: 10px;
+    margin-right: 40px;
+    padding: 2px 3px;
+    color: tomato;
+    border: 1px solid tomato;
+    background-color: white;
+}
+
+a.add-butn.btn-remove {
+    background: lightslategray none repeat scroll 0 0;
+    display: inline-flex;
+}
 /*--- sidebar widgets ---*/
 
 .sidebar {
@@ -1167,8 +1241,8 @@ header.sticky {
 }
 
 .sidebar .widget-title {
-    background: rgba(0, 0, 0, 0) none repeat scroll 0 0;
-    color: #424242;
+    background: #2b2d42 none repeat scroll 0 0;
+    color: White;
     display: inline-block;
     font-size: 15px;
     font-weight: bold;
@@ -1260,7 +1334,7 @@ header.sticky {
     width: 100%;
 }
 
-.activity-meta > h6 a {}
+/* .activity-meta > h6 a {} */
 
 .activitiez > li::before {
     content: "";
@@ -1501,7 +1575,7 @@ form button {
 }
 
 .we-video-info > ul li span.like:hover .we-video-info > ul li span.dislike:hover {
-    trnsform: scale(1.1);
+    transform: scale(1.1);
 }
 
 
@@ -1784,7 +1858,7 @@ for some reason nth-child(1) is always busy and elements starting from 2 */
 
 .we-comet > li {
     display: inline-block;
-    margin-bottom: 20px;
+    /* margin-bottom: 5px; */
     width: 100%;
 }
 
@@ -1833,7 +1907,7 @@ for some reason nth-child(1) is always busy and elements starting from 2 */
 
 .we-comet > li ul {
     margin-left: 55px;
-    margin-top: 20px;
+    margin-top: 5px;
     padding-left: 0;
     list-style: none;
 }
@@ -1881,6 +1955,11 @@ for some reason nth-child(1) is always busy and elements starting from 2 */
     font-size: 13px;
     display: inline-block;
     margin-left: 10px;
+}
+
+.ti-trash{
+    color: tomato;
+    margin-left: 120px;
 }
 
 .coment-head > span {
@@ -3466,22 +3545,27 @@ a.add-butn {
 .your-page > figure {
     display: inline-block;
     margin-bottom: 0;
-    max-width: 55px;
     vertical-align: middle;
+}
+
+.your-page > figure > a > img{
+    height: 55px;
     width: 55px;
 }
 
 .page-meta {
     display: inline-block;
-    padding-left: 10px;
+    padding-left: 15px;
     vertical-align: middle;
-    width: 69.8%;
+    /* width: 100%; */
 }
 
 .your-page {
+    margin: 5px 5%;
     display: inline-block;
-    padding: 0 20px 10px;
-    width: 100%;
+    padding: 0px 10px;
+    width: 90%;
+    border-bottom: 1px solid #a1e9ff;
 }
 
 .page-meta > a {
@@ -3513,7 +3597,7 @@ a.add-butn {
 
 .page-likes {
     float: left;
-    margin: 20px 0;
+    margin: 15px 0;
     width: 100%;
 }
 
@@ -3545,25 +3629,26 @@ a.add-butn {
 }
 
 .page-likes .tab-content .tab-pane > span {
-    font-size: 22px;
+    font-size: 18px;
     font-style: normal;
     font-weight: 600;
-    text-align: center;
+    text-align: left;
     float: left;
-    width: 100%;
+    width: 30%;
+    /* display: inline; */
 }
 
 .page-likes .tab-content .tab-pane > span i {
     color: green;
     font-size: 15px;
-    margin-right: 6px;
+    margin-left: 10px;
 }
 
 .users-thumb-list {
     float: left;
-    text-align: center;
-    width: 100%;
-    margin-top: 20px;
+    text-align: left;
+    width: 70%;
+    /* margin-top: 20px; */
 }
 
 .users-thumb-list > a {
@@ -3776,20 +3861,26 @@ a.add-butn.more-action {
     margin-right: 5px;
 }
 
-.groups > span i {
+/* .groups > span i {
     margin-right: 5px;
-}
+} */
 
 .groups > span {
-    font-size: 20px;
-    font-weight: 400;
+    margin-left: 7px;
+    font-size: 25px;
+    font-weight: 700;
+    color: #2b2d42;
 }
+
+
+
 
 
 /*--- edit basic info page ---*/
 
 .editing-info > form {
     margin-top: 25px;
+    
 }
 
 form .form-group.half {
@@ -4137,14 +4228,15 @@ a.forgot-pwd {
 .peoples-mesg-box {
     display: inline-block;
     vertical-align: top;
-    width: 64.5%;
-    padding-left: 15px;
+    width: 68%;
+    padding-left: 10%;
+
 }
 
 .peoples-mesg-box > ul.chatting-area {
     display: inline-block;
     list-style: outside none none;
-    margin-bottom: 0;
+    margin: 0px;
     max-height: 322px;
     padding: 40px 15px 10px 0;
     width: 100%;
@@ -4228,6 +4320,8 @@ a.forgot-pwd {
     width: 100%;
     margin-bottom: 10px;
     padding-top: 10px;
+    background-color: #2b2d42;
+    color: white;
 }
 
 .conversation-head > figure {
@@ -4266,13 +4360,14 @@ a.forgot-pwd {
     overflow: hidden;
     resize: none;
     display: inline-block;
-    width: 93.5%;
+    width: 95%;
 }
 
 .message-text-container > form {
     display: inline-block;
     position: relative;
     width: 100%;
+    border: 0.2px solid rgb(230, 230, 230);
 }
 
 .message-text-container form button {
@@ -4353,18 +4448,41 @@ a.forgot-pwd {
 }
 
 .liked-pages > li {
+    list-style: outside none none;
     background: #fff none repeat scroll 0 0;
     border: 1px solid #e1e8ed;
     display: inline-block;
-    margin-right: 3px;
+    margin: 20px 6px 0px 7px;
     transition: all 0.15s linear 0s;
     position: relative;
-    max-width: 32.5%;
-    min-width: 32.5%;
-    width: 32.5%;
+    max-width: 23%;
+    min-width: 23%;
+    width: 23%;
+    max-height: 270px;
     padding-bottom: 15px;
-    margin-top: 20px;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.myPosts{
+    float: left;
+    margin-top: 10px;
+    padding-left: 0;
+    width: 100%;
+}
+
+.myPosts > li {
+    list-style: outside none none;
+    display: inline-block;
+    margin: 20px 6px 0px 7px;
+    transition: all 0.15s linear 0s;
+    position: relative;
+    max-width: 24%;
+    min-width: 24%;
+    width: 24%;
+    min-height: 300px;
+    max-height: 300px;
+    overflow-y: auto;
 }
 
 .f-page figure,
@@ -4396,9 +4514,8 @@ a.forgot-pwd {
 }
 
 .page-infos > span {
-    color: #999;
-    display: inline-block;
-    font-size: 12px;
+    color: rgb(114, 114, 114);
+    font-size: 13px;
     /*text-transform: capitalize;*/
     vertical-align: top;
 }
@@ -4723,7 +4840,7 @@ canvas {
 }
 
 .top-area > ul.main-menu > li a {
-    color: #575b5f;
+    color: white;
     font-size: 14px;
     font-weight: 700;
     text-transform: capitalize;
@@ -5349,12 +5466,12 @@ canvas {
 
 .sidebar.left {
     float: right;
-    width: 74%;
+    width: 70%;
 }
 
 .sidebar.right {
     float: left;
-    width: 74%;
+    width: 70%;
 }
 
 .row.merged20 > div {

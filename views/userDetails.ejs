@@ -1,0 +1,115 @@
+<%- include ("includes/header") %>
+
+<section>
+    <div class="feature-photo" style="width: 80%; margin: 0px 10%;">
+        <figure>
+            <img class="cover-photo"  src="<%= coverPhoto %>" id='cover-photo' style="width: 100%; height: 550px;object-fit: cover;" />
+        </figure>
+        <!-- <label class="fileContainer">Cover photo
+        </label> -->
+    
+        <div class="container-fluid">
+            <div class="row-merged">
+                <div class="col-md-2">
+                    <div class="user-avatar">
+                        <figure>
+                            <img class="profile-image" src="<%= profilePhoto %>"id="profile-image"  style="width: 100%; height: 150px; object-fit: cover;" />
+                        </figure>
+                    </div>
+                </div>
+                <div class="col-md-10">
+                    <div class="timeline-info">
+                        <ul>
+                            <li class="admin-name">
+                                <h5 class="user-name" style="padding-top: 20px; padding-bottom: 20px;"></h5>
+                            </li>
+                        </ul>
+                    </div>  
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section>
+    <div class="gap gray-bg">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="row" id="page-contents">
+
+                        <div class="col-md-3">
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="central-meta">
+                                <div class="editing-info">
+
+                                    <h5 class="f-title">
+                                        <i class="ti-info-alt"></i>
+                                        Update Profile
+                                    </h5>
+
+                                        <div class="form-group">
+                                            <input type="text" required class="name" name="name"  value="<%= user.name%>"/>
+                                            <label class="control-label">Full Name</label>
+                                            <i class="mtrl-select"></i>
+                                        </div>
+
+                                        <br><br>
+
+                                        <div class="form-group">
+                                            <input class="email"  value="<%= user.email%>"/>
+                                            <label class="control-label">Email</label>
+                                            <i class="mtrl-select"></i>
+                                        </div>
+
+                                        <br><br>
+
+                                        <div class="form-group">
+                                            <input type="text" class="dob" name="dob"  value="<%= user.dob%>" placeholder="DD/MM/YYYY" />
+                                            <label class="control-label">Date of birth</label>
+                                            <i class="mtrl-select"></i>
+                                        </div>
+
+                                        <br><br>
+
+                                        <div class="form-group">	
+                                            <input type="text" class="city" name="city"  value="<%= user.city%>" />
+                                            <label class="control-label">City</label>
+                                            <i class="mtrl-select"></i>
+                                        </div>
+
+                                        <br><br>
+
+                                        <div class="form-group">
+                                            <input type="text" class="country" name="country"  value="<%= user.country%>"/>
+                                            <label class="control-label">Country</label>
+                                            <i class="mtrl-select"></i>
+                                        </div>
+
+                                        <br><br>
+
+                                        <div class="form-group">	
+                                            <textarea rows="4" class="aboutMe" name="aboutMe"  value="<%= user.aboutMe%>"></textarea>
+                                            <label class="control-label">About Me</label>
+                                            <i class="mtrl-select"></i>
+                                        </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+
+
+</script>
+<%- include ("includes/footer") %>

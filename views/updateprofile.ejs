@@ -1,13 +1,18 @@
 <%- include ("includes/header") %>
+
+<style>
+    .feature-photo .central-meta{
+        margin: -100% 0% 5% 100%;
+    }
+</style>
     <section>
-        <div class="feature-photo">
+        <div class="feature-photo" style="width: 100%;background: rgba(255, 255, 255, 0.7);">
             <figure>
-                <img class="cover-photo"  id='cover-photo' style="width: 100%; height: 700px;object-fit: cover;" />
+                <img class="cover-photo"  id='cover-photo' style="width: 100%; height: 600px;object-fit: cover;opacity: 0.7;" />
             </figure>
             <form class="edit-photo" id="form-cover-photo" enctype="multipart/form-data"  >
                 <i class="fa fa-camera-retro"></i>
-                <label class="fileContainer">
-                    Edit Cover photo
+                <label class="fileContainer">Edit Cover photo
                     <input type="file" accept="image/*" name="coverPhoto" onchange="uploadCoverPhoto()" required/>
                 </label>
             </form>
@@ -16,29 +21,126 @@
                     <div class="col-md-2">
                         <div class="user-avatar">
                             <figure>
-                                <img class="profile-image" id="profile-image" style="width: 100%; height: 150px; object-fit: cover;" />
+                                <img class="profile-image" id="profile-image" style="width: 100%; height: 200px; object-fit: cover;" />
                                 <form class="edit-phto" id="form-upload-image" onsubmit="return false;">
-                                    <i class="fa fa-camera-retro"></i>
                                     <label class="fileContainer">
+                                        <i class="fa fa-camera-retro"></i>
                                         Edit Display Photo
                                         <input type="file" accept="image/*" name="profileImage" onchange="uploadImage()" required/>
                                     </label>
                                 </form>
                             </figure>
                         </div>
+                    </div> 
+                    <div class="col-md-12">
+                        <div class="row" id="page-contents">
+                            <div class="col-md-6">
+                                <div class="central-meta"> 
+                                    <div class="timeline-info"  style="text-align: center;">
+                                        <ul>
+                                            <li class="admin-name">
+                                                <h5 class="user-name"></h5>
+                                            </li>
+                                        </ul>
+                                        <hr>
+                                    </div>
+                                    <div class="editing-info">
+    
+                                        <h5 class="f-title">
+                                            <i class="ti-info-alt"></i>Update Profile
+                                        </h5>
+    
+                                        <form onsubmit="return doUpdateProfile(this);">
+                                            <div class="form-group">
+                                                <input type="text" required class="name" name="name" />
+                                                <label class="control-label">Full Name</label>
+                                                <i class="mtrl-select"></i>
+                                            </div>
+    
+                                            <br><br>
+    
+                                            <div class="form-group">
+                                                <input class="email" />
+                                                <label class="control-label">Email</label>
+                                                <i class="mtrl-select"></i>
+                                            </div>
+    
+                                            <br><br>
+    
+                                            <div class="form-group">
+                                                <input type="text" class="dob" name="dob" placeholder="DD/MM/YYYY" />
+                                                <label class="control-label">Date of birth</label>
+                                                <i class="mtrl-select"></i>
+                                            </div>
+    
+                                            <br><br>
+    
+                                            <div class="form-group">	
+                                                <input type="text" class="city" name="city" />
+                                                <label class="control-label">City</label>
+                                                <i class="mtrl-select"></i>
+                                            </div>
+    
+                                            <br><br>
+    
+                                            <div class="form-group">
+                                                <input type="text" class="country" name="country" />
+                                                <label class="control-label">Country</label>
+                                                <i class="mtrl-select"></i>
+                                            </div>
+    
+                                            <br><br>
+    
+                                            <div class="form-group">	
+                                                <textarea rows="2" class="aboutMe" name="aboutMe"></textarea>
+                                                <label class="control-label">About Me</label>
+                                                <i class="mtrl-select"></i>
+                                            </div>
+    
+                                            <button type="submit" class="mtr-btn" name="submit">
+                                                <span>Save</span>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>      
+                        </div>
                     </div>
-                    <div class="col-md-10">
-                        <div class="timeline-info">
-                            <ul>
-                                <li class="admin-name">
-                                    <h5 class="user-name" style="padding-top: 20px; padding-bottom: 20px;"></h5>
-                                </li>
-                            </ul>
-                        </div>  
-                    </div>
+                    
                 </div>
             </div>
         </div>
+
+        <!-- modal for delete post -->
+        <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Delete</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+        
+                    <div class="modal-body">
+                        <h6>
+                            Are you sure?
+                        </h6>
+                        <form onsubmit="return doDeletePost(this);">
+                            <input type="hidden" name="postId">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                Close
+                              </button>
+                              <button type="submit" class="btn btn-danger">Delete</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                </div>
+            </div>
+        </div>
+
+
     </section>
     <script>
     var isUpdateProfile = true;
@@ -53,7 +155,92 @@
 		document.querySelector(".city").value = window.user.city;
 		document.querySelector(".country").value = window.user.country;
 		document.querySelector(".aboutMe").value = window.user.aboutMe;
-    
+
+
+        var ajax = new XMLHttpRequest();
+        ajax.open("POST",'/getMyPosts', true);
+
+        ajax.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200) {
+
+				var response = JSON.parse(this.responseText);
+
+				var html = "";
+				for (var a = 0; a < response.data.length; a++) {
+					var data = response.data[a];
+
+                            html += '<li>'
+                            html += '<div class="central-meta item">';
+                                html += '<div class="user-post">';
+                                    html += '<div class="friend-info">';
+
+                                        // html += '<figure>';
+                                        // 	html += '<img src="' + mainURL + "/" + data.user.profileImage + '" style="width: 45px; height: 45px; object-fit: cover;">';
+                                        // html += '</figure>';
+
+                                        // html += '<div class="friend-name">';
+                                        // 	html += '<ins>';
+                                        // 		if (data.type == "post")
+                                        // 		{
+                                        // 			html += '<a href="/user/' + data.user._id + '">';//first its username instead of name
+                                        // 				html += data.user.name;
+                                        // 			html += '</a>';
+                                        // 		}
+                                        // 		else
+                                        // 		{
+                                        // 			html += data.user.name;
+                                        // 		}
+                                        // 	html += '</ins>';
+
+                                            var createdAt = new Date(data.createdAt);
+                                            var date = createdAt.getDate() + "";
+                                            date = date.padStart(2, "0") + " " + months[createdAt.getMonth()] + ", " + createdAt.getFullYear();
+
+                                            html += '<span style="font-size:14px">' + date + '</span>';
+                                        // html += '</div>';
+                                        html += '<a class="we-reply" href="javascript:void(0);" onclick="prepareToDelete(this);" data-post-id="' + data._id + '" title="Delete Post"><i class="ti-trash"></i></a>';
+
+
+                                        html += '<div class="post-meta">';
+                                            var text= data.caption;
+                                            var exp = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+                                            var text1=text.replace(exp, "<a href='$1'>$1</a>");
+                                            var exp2 =/(^|[^\/])(www\.[\S]+(\b|$))/gim;
+                                            var details =text1.replace(exp2, '$1<a target="_blank" href="http://$2">$2</a>');
+                                            //   console.log(details)
+        
+                                            html += '<div class="description">';
+                                                html += '<p>';
+                                                    html += details;
+                                                html += '</p>';
+                                            html += '</div>';
+
+                                            if (data.image != "") {
+                                                html += '<img src="' + mainURL + "/" + data.image + '">';
+                                            }
+
+                                            if (data.video != "") {
+                                                html += '<video style="height: 359px; width: 100%;" controls src="' + mainURL + "/" + data.video + '"></video>';
+                                            }
+
+                                            html += createLikesSection(data);
+                                        html += '</div>';
+                                    html += '</div>';
+
+                                    html += "<div id='post-comments-" + data._id + "'>";
+                                        html += createCommentsSection(data); 
+                                    html += "</div>";
+
+                                html += '</div>';
+                            html += '</div>';
+                        html += '</li>'
+				}
+				document.getElementById("newsfeed").innerHTML = html;
+			}
+		}
+        var formData = new FormData();
+		formData.append("accessToken", localStorage.getItem("accessToken"));
+		ajax.send(formData);
     }
     function uploadCoverPhoto(form){
         var form = document.getElementById('form-cover-photo');
@@ -117,85 +304,54 @@
             return false;
         }
 
+        function prepareToDelete(self){
+            // console.log(self)
+            $("#deleteModal input[name='postId']").val(self.getAttribute("data-post-id"));
+            $('#deleteModal').modal("show");
+
+        }
+        function doDeletePost(form){
+            var ajax = new XMLHttpRequest();
+            ajax.open("POST", "/deletePost", true);
+            ajax.onreadystatechange = function(){
+                if(this.readyState == 4 && this.status == 200){
+                    var response = JSON.parse(this.responseText);
+                    $('#deleteModal').modal("hide");
+
+                    if(response.status == "success"){
+                        alert(response.message)
+                        showProfileData();
+                    }else{
+                        alert("error")
+                    }
+                }
+            }
+            var formData = new FormData(form);
+            formData.append("accessToken", localStorage.getItem("accessToken"));
+            ajax.send(formData);    
+            return false;
+        }
+
     </script>
     <section>
         <div class="gap gray-bg">
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-md-12">
-                        <div class="row" id="page-contents">
-    
-                            <div class="col-md-3">
-                            </div>
-    
-                            <div class="col-md-6">
-                                <div class="central-meta">
-                                    <div class="editing-info">
-    
-                                        <h5 class="f-title">
-                                            <i class="ti-info-alt"></i>
-                                            Update Profile
-                                        </h5>
-    
-                                        <form onsubmit="return doUpdateProfile(this);">
-                                            <div class="form-group">
-                                                <input type="text" required class="name" name="name" />
-                                                <label class="control-label">Full Name</label>
-                                                <i class="mtrl-select"></i>
-                                            </div>
-    
-                                            <br><br>
-    
-                                            <div class="form-group">
-                                                <input class="email" />
-                                                <label class="control-label">Email</label>
-                                                <i class="mtrl-select"></i>
-                                            </div>
-    
-                                            <br><br>
-    
-                                            <div class="form-group">
-                                                <input type="text" class="dob" name="dob" placeholder="DD/MM/YYYY" />
-                                                <label class="control-label">Date of birth</label>
-                                                <i class="mtrl-select"></i>
-                                            </div>
-    
-                                            <br><br>
-    
-                                            <div class="form-group">	
-                                                <input type="text" class="city" name="city" />
-                                                <label class="control-label">City</label>
-                                                <i class="mtrl-select"></i>
-                                            </div>
-    
-                                            <br><br>
-    
-                                            <div class="form-group">
-                                                <input type="text" class="country" name="country" />
-                                                <label class="control-label">Country</label>
-                                                <i class="mtrl-select"></i>
-                                            </div>
-    
-                                            <br><br>
-    
-                                            <div class="form-group">	
-                                                <textarea rows="4" class="aboutMe" name="aboutMe"></textarea>
-                                                <label class="control-label">About Me</label>
-                                                <i class="mtrl-select"></i>
-                                            </div>
-    
-                                            <button type="submit" class="mtr-btn" name="submit">
-                                                <span>Save</span>
-                                            </button>
-                                        </form>
-                                    </div>
+                        <!-- <div class="row" id="page-contents">
+                            <div class="col-md-3"> -->
+                                <div class="groups">    
+                                    <span>
+                                        My Posts
+                                    </span>
                                 </div>
-                            </div>
-    
-                            <div class="col-md-3">
-                            </div>
-    
-                        </div>
+                                <div class="loadMore">
+                                    <ul class="myPosts" id="newsfeed">
+
+                                    </ul>
+                                </div>
+                            <!-- </div>
+                        </div> -->
                     </div>
                 </div>
             </div>
@@ -203,101 +359,3 @@
     </section>
 
 <%- include ("includes/footer") %>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!-- <section>
-    <div class="feature-photo">
-        <figure>
-            <img class="cover-photo" id='cover-photo' style="width: 100%; height: 700px;object-fit: cover;" />
-        </figure>
-        <form class="edit-photo" id="form-cover-photo" onsubmit="return false;" >
-            <i class="fa fa-camera-retro"></i>
-            <label class="fileContainer">
-                Edit Cover photo
-                <input type="file" accept="image/*" name="coverPhoto" onchange="uploadCoverPhoto()" required/>
-            </label>
-        </form>
-        <div class="container-fluid">
-            <div class="row-merged">
-                <div class="col-md-2">
-                    <div class="user-avatar">
-                        <figure>
-                            <img class="profile-image" id="profile-image" style="width: 100%; height: 150px; object-fit: cover;" />
-                            <form class="edit-phto" id="form-upload-image" onsubmit="return false;">
-                                <i class="fa fa-camera-retro"></i>
-                                <label class="fileContainer">
-                                    Edit Display Photo
-                                    <input type="file" accept="image/*" name="profileImage" onchange="uploadImage()" required/>
-                                </label>
-                            </form>
-                        </figure>
-                    </div>
-                </div>
-                <div class="col-md-10">
-                    <div class="timeline-info">
-                        <ul>
-                            <li class="admin-name">
-                                <h5 class="user-name" style="padding-top: 20px; padding-bottom: 20px;"></h5>
-                            </li>
-                        </ul>
-                    </div>  
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-<script>
-    var isUpdateProfile = false;
-    function showProfileData(){
-        document.querySelector('.cover-photo').setAttribute('src', mainURL + "/" + window.user.coverPhoto)
-        document.querySelector('.profile-image').setAttribute('src', mainURL + "/" + window.user.profileImage)
-    }
-
-    function uploadCoverPhoto(form){
-        var form = document.getElementById('form-cover-photo');
-
-        var ajax = new XMLHttpRequest();
-        ajax.open("POST", '/uploadCoverPhoto', true);
-        ajax.onreadystatechange = function(){
-            if (this.readyState == 4 && this.status == 200) {
-                  var response = JSON.parse(this.responseText);
-                  console.log("this is response from up",response.data);
-                  document.getElementById("cover-photo").setAttribute("src", response.data);
-            }
-        }
-        var formData = new FormData(form);
-        formData.append('accessToken', localStorage.getItem("accessToken"));
-        ajax.send(formData);
-        return false;
-    }
-
-</script> -->
-

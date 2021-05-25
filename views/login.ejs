@@ -7,16 +7,81 @@
         <link rel="stylesheet" href="/public/css/color.css">
         <link rel="stylesheet" href="/public/css/responsive.css">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+        <style>
+            
+            .login-reg-bg{
+                background-color: rgb(230, 251, 252,0.5);
+            }
+
+            @media screen and (max-width: 1920px) and (min-width: 1601px) {
+                .theme-layout{
+                background-image: url('../public/img/login-bg.gif');
+                background-repeat: no-repeat;
+                background-position: right 2% top 50%;
+            }
+            .pdng0{
+                margin-left: -26%;
+            }
+            }
+            @media screen and (max-width: 1600px) and (min-width: 1400px){
+                .theme-layout{
+                background-image: url('../public/img/login-bg.gif');
+                background-repeat: no-repeat;
+                background-position: right 2% top 50%;
+            }
+            .pdng0{
+                margin-left: -26%;
+            }
+            }
+            @media screen and (max-width: 1400px) and (min-width: 1280px){
+                .theme-layout{
+                background-image: url('../public/img/login-bg.gif');
+                background-repeat: no-repeat;
+                background-position: right 2% top 50%;
+            }
+            .pdng0{
+                margin-left: -26%;
+            }
+            }
+            @media screen and (max-width: 1281px) and (min-width: 1024px) {
+                .theme-layout{
+                background-image: url('../public/img/login-bg.gif');
+                background-repeat: no-repeat;
+                background-position: right 2% top 50%;
+                background-size: 43%;
+            }
+            .pdng0{
+                margin-left: -26%;
+            }   
+            .log-reg-area{
+                width: 75%;
+            }
+            .login-reg-bg{
+                width: 110%;
+                background-color: rgb(230, 251, 252,0.5);
+            }
+            }
+            @media screen and (max-width: 768px) {
+                .theme-layout{
+                background-image: none;
+            }
+            .pdng0{
+                margin-left: 0px;
+            }   
+            }
+        </style>
+
 
     </head>
-    <body style="background-image: url('../public/img/background.gif');background-repeat: no-repeat;background-position: right;">
-        <div class="theme-layout" style="margin-left: -300px;">
+    <body>
+        <div class="theme-layout">
             <div class="container-fluid pdng0">
-                <div class="row merged"> 
+                <div class="row merged" > 
                     <div class="offset-md-3 col-md-6">
                         <div class="login-reg-bg">
                             <div id="error">
@@ -34,7 +99,8 @@
                                         <label class="control-label">Password</label>
                                         <i class="mtrl-select"></i>
                                     </div>
-                                    <a href="/signup" style="text-decoration: none;">Dont't have an account, Click here!</a>
+                                    <a href="/signup" style="text-decoration: none;">Dont't have an account, Click here!</a><br>
+                                    <a href="/forget" style="text-decoration: none;">Forget Password</a>
                                     <div class="submit-btns">
                                         <button  class="mtr-btn signup" name="submit">
                                             <span>Login</span>

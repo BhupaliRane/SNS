@@ -26,27 +26,27 @@
                             html+= '<a href="/page/'+data._id+'" class="underline">'+data.name+ '</a>';
                         html+='</div>';
                         html+=   '<div class="page-likes">';
-                            html+='<ul class="nav nav-tabs likes-btn">';
-                                html+= '<li class="nav-item" style="width: 100%">';
-                                    html+= '<a class="active" href="#page-likes" data-toggle="tab">Likes</a>';
-                                html+='</li>';
-                            html+='</ul>';
+                            // html+='<ul class="nav nav-tabs likes-btn">';
+                            //     html+= '<li class="nav-item" style="width: 100%">';
+                            //         html+= '<a class="active" href="#page-likes" data-toggle="tab">Likes</a>';
+                            //     html+='</li>';
+                            // html+='</ul>';
 
                         html+= '<div class="tab-content">';
                             html+='<div class="tab-pane active fade show" id="page-likes">';
                                 html+= '<span><i class="ti-heart"></i>' +data.likers.length+'</span>';
-                           html+='<div class="users-thumb-list">';
-                            for(var b = 0; b< data.likers.length; b++){
-                                var liker = data.likers[b];
-                                html+='<a data-toggle="tooltip">';
-                                    html+= '<img src="'+ mainURL +'/'+ liker.coverPhoto+'" style="width: 32px; height: 32px; object-fit:cover;">';
-                                    html+='</a>';     
-                                } 
+                                html+='<div class="users-thumb-list">';
+                                    for(var b = 0; b< data.likers.length; b++){
+                                        var liker = data.likers[b];
+                                        html+='<a data-toggle="tooltip">';
+                                            html+= '<img src="'+ mainURL +'/'+ liker.coverPhoto+'" style="width: 32px; height: 32px; object-fit:cover;">';
+                                            html+='</a>';     
+                                        } 
                                 html+='</div>';
-                                html+='</div>';
-                                html+='</div>';
-                                html+='</div>';
-                                html+='</div>';
+                            html+='</div>';
+                        html+='</div>';
+                        html+='</div>';
+                    html+='</div>';
                                 
                 }
                 document.getElementById("my-pages").innerHTML = html;

@@ -36,15 +36,6 @@ app.set('socketio', socketIO);
 
 app.use('/',require('./routes/index'))
 
-// app.get('/',(req, res) =>{
-//     res.render('signup')
-// })
-
-// app.post('/signup', (req, res) =>{
-//     console.log("woking");
-//     res.end("working")
-// })
-
 http.listen(3000, () =>{
     console.log("server has started on 3000");   
 })  

@@ -1,0 +1,139 @@
+<html>
+    <head>
+        <title>Social Network</title>
+        <link rel="stylesheet" href="/public/css/main.min.css">
+        <link rel="stylesheet" href="/public/css/style.css">
+        <link rel="stylesheet" href="/public/css/color.css">
+        <link rel="stylesheet" href="/public/css/responsive.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+        <style>
+            
+            .login-reg-bg{
+                background-color: rgb(230, 251, 252,0.5);
+            }
+
+            @media screen and (max-width: 1920px) and (min-width: 1601px) {
+                .theme-layout{
+                background-image: url('../public/img/login-bg.gif');
+                background-repeat: no-repeat;
+                background-position: right 2% top 50%;
+            }
+            .pdng0{
+                margin-left: -26%;
+            }
+            }
+            @media screen and (max-width: 1600px) and (min-width: 1400px){
+                .theme-layout{
+                background-image: url('../public/img/login-bg.gif');
+                background-repeat: no-repeat;
+                background-position: right 2% top 50%;
+            }
+            .pdng0{
+                margin-left: -26%;
+            }
+            }
+            @media screen and (max-width: 1400px) and (min-width: 1280px){
+                .theme-layout{
+                background-image: url('../public/img/login-bg.gif');
+                background-repeat: no-repeat;
+                background-position: right 2% top 50%;
+            }
+            .pdng0{
+                margin-left: -26%;
+            }
+            }
+            @media screen and (max-width: 1281px) and (min-width: 1024px) {
+                .theme-layout{
+                background-image: url('../public/img/login-bg.gif');
+                background-repeat: no-repeat;
+                background-position: right 2% top 50%;
+                background-size: 43%;
+            }
+            .pdng0{
+                margin-left: -26%;
+            }   
+            .log-reg-area{
+                width: 75%;
+            }
+            .login-reg-bg{
+                width: 110%;
+                background-color: rgb(230, 251, 252,0.5);
+            }
+            }
+            @media screen and (max-width: 768px) {
+                .theme-layout{
+                background-image: none;
+            }
+            .pdng0{
+                margin-left: 0px;
+            }   
+            }
+        </style>
+
+
+    </head>
+    <body>
+        <div class="theme-layout">
+            <div class="container-fluid pdng0">
+                <div class="row merged" > 
+                    <div class="offset-md-3 col-md-6">
+                        <div class="login-reg-bg">
+                            <div id="error">
+                            </div>
+                            <div class="log-reg-area sign">
+                                <h2 class="log-title">Forget Password</h2>
+                                <form onsubmit="return doSendMail(this);">
+                                    <div class="form-group">
+                                        <input type="text" name="email" required/>
+                                        <label class="control-label">Email</label>
+                                        <i class="mtrl-select"></i>
+                                    </div>
+                                    <a href="/login" style="text-decoration: none;">Back to login</a>
+                                    <div class="submit-btns">
+                                        <button  class="mtr-btn signup" name="submit">
+                                            <span>Submit</span>
+                                        </button>
+                                    </div>
+                                </form> 
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+<script>
+
+    function doSendMail(form){
+        // console.log(form)
+        form.submit.setAttribute("disabled","disabled");
+        form.submit.innerHTML = "<span>Loading...<span>";
+        var ajax = new XMLHttpRequest();
+        ajax.open("POST","/sendMail",true)
+
+        ajax.onreadystatechange = function(){
+            if (this.status === 200 && this.readyState == 4) {
+                form.submit.removeAttribute("disabled");
+                form.submit.innerHTML = "<span>Submit</span>";
+                var response = JSON.parse(this.responseText);
+                console.log(response.status)
+                if(response.status == "success"){
+                    alert(response.message)
+                }else{
+                    alert(response.message)
+                    
+                }
+
+            }
+        }
+        ajax.send(new FormData(form))            
+        return false;
+    }
+
+</script>
+</html>

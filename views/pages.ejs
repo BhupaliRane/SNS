@@ -9,7 +9,7 @@
                         <div class="col-md-3">
                             <%- include ("includes/left-sidebar") %>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-8">
                             <div class="central-meta">
                                 <div class="groups">
                                     <span><i class="fa fa-title-text-o"></i>
@@ -45,12 +45,12 @@
                     html += '<div class="f-page">';
                         html += '<figure>';
                             html += '<a href="/page/' + data._id + '">';
-                                html+= '<img src="' + mainURL + '/'+ data.coverPhoto + '" style="wid: 205px; height: 183px; object-fit: cover;">';
+                                html+= '<img src="' + mainURL + '/'+ data.coverPhoto + '" style="width: 200px; height: 200px; object-fit: cover;">';
                                 html += '</a>';
-                                html += '<em>' + data.likers.length + 'likes</em>';
+                                html += '<em>' + data.likers.length + '  <span><i class="fa fa-heart"></i></span></em>';
                                 html += '</figure>';
                                 html+= '<div class="page-infos">';
-                                html+= '<h5><a href="/page/' + data._id + '">' + data.name + '</a>';
+                                html+= '<h5><a href="/page/' + data._id + '">' + data.name + '</a></h5><br>';
                                 html+= '<span>' + data.additionalInfo + '</span>';
                                 html += '</div>';
                                 html += '</div>';

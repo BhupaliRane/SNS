@@ -4,7 +4,7 @@
 		<ul class="naves">
 			<li>
 				<i class="ti-user"></i>
-				<a href="/friends">Friends</a>
+				<a href="/friends">Friends<span class="badge" id="friends-badge"></span></a>
 				<!-- <i class="fa fa-star">Premium</i> -->
 			</li>
 
@@ -14,14 +14,83 @@
 				<!-- <i class="fa fa-star">Premium</i> -->
 			</li>
 
-			<li>
-				<i class="ti-bell"></i>
-				<a href="/notifications">Notifications <span class="badge" id="notifications-badge"></span></a>
-			</li>
+			
 			<li>
 				<i class="ti-files"></i>
 				<a href="/createPage">Create Page</a>
 			</li>
+			<li>
+				<i class="ti-magnet"></i>
+				<a href="/createGroup">Create Group</a>
+			</li>
+			<li>
+				<i class="ti-bell"></i>
+				<a href="/notifications">Notifications <span class="badge" id="notifications-badge"></span></a>
+			</li>
 		</ul>
 	</div>
 </aside>
+<script>
+	var notificationLen = null;
+	(function(){
+ // some code…
+ if (localStorage.getItem("accessToken") && localStorage.getItem("showNotificationLength") != "True") {
+ 		   console.log("updating notification length");
+			var ajax = new XMLHttpRequest();
+            ajax.open('POST','/updateNotificationLength', true);
+
+            ajax.onreadystatechange = function(){
+                if (this.readyState == 4 && this.status == 200) {
+                    var response = JSON.parse(this.responseText);
+                    if (response.status == "success") {
+						if(response.notLen > response.prevnotLen){
+							document.getElementById("notifications-badge").innerHTML = response.notLen - response.prevnotLen;
+						}
+						localStorage.setItem("showNotificationLength", "True");
+
+                        // notificationLen = 10;
+                        console.log("notification lenght current and stored " + response.notLen+" "+ response.prevnotLen);
+                    }
+                }
+         
+        }
+        var formData = new FormData();
+            formData.append("accessToken", localStorage.getItem("accessToken"))
+            ajax.send(formData);
+	
+	}
+	})();
+
+
+	(function(){
+ // some code…
+ if (localStorage.getItem("accessToken") && localStorage.getItem("showFriendsLength") != "True") {
+ 		   console.log("updating friends length");
+			var ajax = new XMLHttpRequest();
+            ajax.open('POST','/updateFriendsLength', true);
+
+            ajax.onreadystatechange = function(){
+                if (this.readyState == 4 && this.status == 200) {
+                    var response = JSON.parse(this.responseText);
+                    if (response.status == "success") {
+						if(response.notLen > response.prevnotLen){
+							document.getElementById("friends-badge").innerHTML = response.notLen - response.prevnotLen;
+						}
+						localStorage.setItem("showFriendsLength", "True");
+
+                        // notificationLen = 10;
+                        console.log("friends lenght current and stored " + response.notLen+" "+ response.prevnotLen);
+                    }
+                }
+         
+        }
+        var formData = new FormData();
+            formData.append("accessToken", localStorage.getItem("accessToken"))
+            ajax.send(formData);
+	
+	}
+	})();
+
+
+	// console.log(notificationLen)
+</script>

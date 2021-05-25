@@ -15,14 +15,14 @@
 		months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 	%>
     <div class="theme-layout">
-        <div class="topbar-stick">
+        <div class="topbar-stick" style="background-color: #2b2d42;color: white;">
             <div class="logo">
                 <a href="/">
-                    <h2>Logo</h2>
+                    <h2>SocialMe</h2>
                     <!-- <img src="public/img/logo.png" alt=""> -->
                 </a>
             </div>
-            <div class="top-area">
+            <div class="top-area" >
                 <ul class="main-menu" id="main-menu">
                 </ul>
                 <ul class="setting-area">
@@ -32,7 +32,7 @@
 						</a>
 						<div class="searched">
 							<form onsubmit="return false;" class="form-search">
-								<input type="type" placeholder="Search Friend">
+								<input type="type" placeholder="Search Friend" autofocus>
 								<button data-ripple type="button" onclick="onSearch(this);">
 									<i class="ti-search"></i>
 								</button>
@@ -46,14 +46,14 @@
     <script>
         var mainURL = "http://localhost:3000";
         var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-
+        // var notificationLen = null;
         function onSearch(button){
             // console.log(button);    
             window.location.href = "/search/"+ button.previousElementSibling.value;
         }
 
         function createLikesSection(data){
-            // console.log('this is from index and function in header',data);
+            console.log('this is likes ',data);
             // this is for like section
             var isLiked = false;
             for(var b=0; b < data.likers.length; b++){
@@ -97,8 +97,37 @@
                         return html;
 
         }
+        
         function sharePost(self){
-            alert("you have clickeed share post")
+            if(confirm("Are you sure you want to share this post ?")){
+                var _id = self.getAttribute("data-id");
+
+                var ajax = new XMLHttpRequest();
+                ajax.open("POST", "/sharePost",true);
+
+                ajax.onreadystatechange = function(){
+                    if(this.readyState ==4 && this.status ==200){
+                        var response = JSON.parse(this.responseText);
+
+                        alert(response.message);
+
+                        if(response.status == "success"){
+                            self.className ="like";
+                            
+                            var shares = parseInt(self.querySelector("ins").innerHTML);
+                            shares++;
+                            self.querySelector("ins").innerHTML = shares;
+                            showNewsfeed();
+                        }
+                    }
+                };
+
+
+                var formData = new FormData();
+                formData.append("accessToken", localStorage.getItem("accessToken"));
+                formData.append("_id",_id);
+                ajax.send(formData)
+            }
         }
 
         function toggleLikePost(self){
@@ -204,7 +233,7 @@
 							html += '<div class="post-comt-box">';
 								html += '<form method="post" onsubmit="return doPostComment(this);">';
 									html += '<input type="hidden" name="_id" value="' + data._id + '">';
-									html += '<textarea name="comment" placeholder="Post your comment"></textarea>';
+									html += '<textarea name="comment" placeholder="Post your comment" required></textarea>';
 									html += '<button type="submit">Post</button>';
 								html += '</form>';
 							html += '</div>';
@@ -275,7 +304,7 @@
 							html += '<div class="newpst-input">';
 								html += '<form method="post" id="form-add-post" onsubmit="return doPost(this);">';
 
-									html += '<input name="type" type="hidden" value="post">';
+									html += '<input name="type" type="hidden" value="post" required>';
 									html += '<textarea rows="2" name="caption" placeholder="write something"></textarea>';
 									html += '<div class="attachments">';
 										html += '<ul>';
@@ -314,6 +343,7 @@
 					document.getElementById("add-post-box").innerHTML = html;
 				}
         }
+        
         function previewPostImage(self){
             var file = self.files;
                 if (file.length > 0) {
@@ -338,9 +368,7 @@
             }
         }
 
-        // function doPost(form){
-        //     // console.log(form);
-        //     var ajax = new XMLHttpRequest();
+        // fun  var ajax = new XMLHttpRequest();
         //     ajax.open('POST','/addPost', true);
 
         //     ajax.onreadystatechange = function(){
@@ -360,10 +388,61 @@
         //         var formData = new FormData(form);
         //         formData.append("accessToken", localStorage.getItem("accessToken"))
         //         ajax.send(formData);
-        //         return false;
+        //         return false;ction doPost(form){
+        //     // console.log(form);
+        //   
         //     }
         // }
 
+    //     function updateNotificationLength(){
+    //         var ajax = new XMLHttpRequest();
+    //         ajax.open('POST','/updateNotificationLength', true);
+
+    //         ajax.onreadystatechange = function(){
+    //             if (this.readyState == 4 && this.status == 200) {
+    //                 var response = JSON.parse(this.responseText);
+    //                 if (response.status == "success") {
+    //                     notificationLen = 10;
+    //                     console.log("notification lenght saved")
+    //                 }
+    //             }
+         
+    //     }
+    //     var formData = new FormData();
+    //         formData.append("accessToken", localStorage.getItem("accessToken"))
+    //         ajax.send(formData);
+    // }
+    function storeNotificationLength(){
+                var ajax = new XMLHttpRequest();
+                ajax.open("POST","/fetchNotificationLength", true);
+        		ajax.onreadystatechange = function(){
+		    	if (this.readyState == 4 && this.status == 200) {
+				var response = JSON.parse(this.responseText);
+                if(response.status == "success"){
+                    // alert("notification length updated")
+                    console.log("notification lengtht updated");
+                }
+            }}
+            var formData = new FormData();
+    		formData.append("accessToken", localStorage.getItem("accessToken"));
+	    	ajax.send(formData);
+            // return false;
+            }
+    function storeFriendsLength(){
+        var ajax = new XMLHttpRequest();
+        ajax.open("POST","/fetchFriendsLength", true);
+        ajax.onreadystatechange = function(){
+            if (this.readyState == 4 && this.status == 200) {
+                var response = JSON.parse(this.responseText);
+                if (this.status == "success") {
+                    console.log("Friends lenght updated")
+                }
+            }
+        }
+        var formData = new FormData();
+    		formData.append("accessToken", localStorage.getItem("accessToken"));
+	    	ajax.send(formData);
+    }
 
     </script>
     <style>

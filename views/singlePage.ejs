@@ -1,29 +1,7 @@
 <%- include("includes/header") %>
 
 <section>
-    <div class="feature-photo">
-        <figure>
-            <img id="page-cover-photo">
-        </figure>
-        <div class="add-btn">
-            <span id="page-likes"></span>
-                <a href="javascript:void(0);" onclick="toggleLikePage();" id="btn-toggle-like" ></a>
-        </div>
-        <div class="container-fluid">
-            <div class="row merged">
-                <div class="col-lg-10 col-sm-9">
-                    <div class="timeline-info">
-                        <ul>
-                            <li class="admin-name">
-                                <h5 style="padding: 25px;" id="page-name"></h5>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    </div>
+    
 </section>
 <section>
     <div class="gap gray-bg">
@@ -38,6 +16,25 @@
                             <div id="add-post-box"></div>
                             <div class="loadMore" id="newsfeed"></div>
                         </div>
+                        <div class="col-md-3 widget">
+                            <div class="feature-photo">
+                                <div class="timeline-info">
+                                    <ul>
+                                        <li class="admin-name">
+                                            <h5 style="padding: 25px;" id="page-name"></h5>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <figure>
+                                    <img id="page-cover-photo">
+                                </figure>
+                                <div class="add-btn" id="page-like">
+                                    <span id="page-likes"></span>
+                                    <a href="javascript:void(0);" data-id="<%= _id %>" onclick="toggleLikePage(this);" id="btn-toggle-like" ></a>
+
+                                </div>
+                            </div>      
+                        </div>
                     </div>
                 </div>
             </div>
@@ -51,6 +48,33 @@
 
 <script>
     var isPageDetail = true;
+
+    function toggleLikePage(){
+		var ajax = new XMLHttpRequest();
+		ajax.open("POST", "/toggleLikePage", true);
+		ajax.onreadystatechange = function(){
+			if (this.readyState == 4 && this.status == 200) {
+				var response = JSON.parse(this.responseText);
+				if (response.status == "success") {
+					self.className = "add-butn btn-unfriend";
+					self.innerHTML = "Unlike"
+				}
+				if (response.status == "unliked") {
+					self.className = "add-butn";
+					self.innerHTML = "Like";
+				}
+				if (response.status == "error") {
+					alert(response.message+  "from search");
+				}
+			}
+		}
+        var formData = new FormData();
+        formData.append("accessToken", localStorage.getItem("accessToken"));
+        formData.append("_id", document.getElementById("_id").value);
+        ajax.send(formData);
+	}
+
+    
     function getPageDetail(){
         var ajax = new XMLHttpRequest();
         ajax.open("POST", "/getPageDetail", true);
@@ -158,8 +182,37 @@
 
 		return false;
 	}
-
-
-
+    
+//   function toggleLikePage(self){
+//         console.log(self, "from single page unlik");
+//         console.log(self.getAttribute("data-id"))
+//         return false;
+//     }
+function toggleLikePage(self){//recently created
+	// console.log(self.getAttribute("data-id"));
+		var ajax = new XMLHttpRequest();
+		// console.log(self);
+		ajax.open("POST", "/toggleLikePage", true);
+		ajax.onreadystatechange = function(){
+			if (this.readyState == 4 && this.status == 200) {
+				var response = JSON.parse(this.responseText);
+				if (response.status == "success") {
+					self.className = "add-butn btn-unfriend";
+					self.innerHTML = "Unlike"
+				}
+				if (response.status == "unliked") {
+					self.className = "add-butn";
+					self.innerHTML = "Like";
+				}
+				if (response.status == "error") {
+					alert(response.message+  "from search");
+				}
+			}
+		}
+		var formData = new FormData();
+		formData.append("accessToken", localStorage.getItem("accessToken"));
+		formData.append("_id", self.getAttribute("data-id"));
+		ajax.send(formData);
+	}
 </script>
 <%- include("includes/footer") %>

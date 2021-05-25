@@ -1,0 +1,235 @@
+<%- include("includes/header") %>
+<section>
+    <div class="gap gray-bg">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="row" id="page-contents">
+                        <div class="col-md-3">
+                            <%- include("includes/left-sidebar") %>
+                        </div>
+                        <div class="col-md-6">
+                            <div id="add-post-box"></div>
+                            <div class="loadMore" id="newsfeed"></div>
+                        </div>
+                        
+                        <div class="col-md-3 widget">
+                            <div class="feature-photo">
+                                <div class="timeline-info">
+                                    <ul>
+                                        <li class="admin-name">
+                                            <h5 style="padding: 25px;" id="group-name"></h5>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <img id="group-cover-photo">
+                                    <br><br>
+                                    <span id="group-members"></span>
+                                
+                                    <div class="add-btn grp-members">
+                                        <div class="members-profile" id="member">
+                                            <ul id="members-list"></ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                            </div>      
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<input type="hidden" value="<%= _id %>" id="_id">
+
+<script>
+    var isGroupDetail = true;
+    function getGroupDetail(){
+        var ajax = new XMLHttpRequest();
+        ajax.open("POST", "/getGroupDetail", true);
+        ajax.onreadystatechange = function(){
+            if (this.readyState == 4 && this.status == 200) {
+                var response = JSON.parse(this.responseText);
+                document.getElementById("group-cover-photo").setAttribute("src", mainURL+"/"+response.data.coverPhoto);
+                document.getElementById("group-members").innerHTML = response.data.members.length + " members";
+                document.getElementById("group-name").innerHTML = response.data.name;
+                // console.log(response.data.members)
+                var isMember = false;
+                for(var a=0; a< response.data.members.length; a++){
+                    var member = response.data.members[a];
+                    // console.log(member)
+                    if(member._id.toString() == user._id.toString()){
+                        isMember = true;
+                        break;
+                    }
+                     
+                }
+                //code of memebrs
+                var userList = "";
+
+                for(var a=0; a< response.data.members.length; a++){
+                    var member = response.data.members[a];
+                        // console.log(member)
+                    if(member.status = "Accepted"){
+                        userList+= '<li>';
+                        userList += '<span><img src="' + mainURL + "/" + member.profileImage + '"></span>';
+                        userList += '<span>'+ member.name + '</span>';
+                        if (member._id.toString() == response.data.user._id.toString()) {
+                             userList += '<span><button>Admin</button></span>';
+                        }
+                        if (window.user._id.toString() == response.data.user._id.toString()){
+                        if (member._id.toString() != response.data.user._id.toString()) {
+                        userList+= '<a href="javascript:void(0);" group-id="' + response.data._id + '" group-owner="' + response.data.user._id + '"  member-id="' + member._id+ '" onclick="doRemoveMember(this);" >Remove</a>';
+                          }
+                        }
+                     userList += '</li>';  
+                    }
+                     
+                }
+                // console.log("user from window" + window.user.email)
+                document.getElementById('members-list').innerHTML = userList;
+                if(isMember){
+                    showAddPost();
+                }
+                var html = "";
+                response.posts = response.posts.reverse();
+                for(var a=0; a< response.posts.length; a++){
+                    var data = response.posts[a];
+                    // console.log(data)
+                    // console.log(data.video)
+                    html+='<div class="central-meta item">';
+                        html+= '<div class="user-post">';
+                            html+= '<div class="friend-info">';
+                                html+= '<figure>';
+                                    html+= '<img src="' +mainURL+ "/" + data.uploader.profileImage +'">';
+                                html+= '</figure>';
+                                 
+                                html+= '<div class="friend-name">';
+                                    html+= '<ins>';
+                                        html+= '<a href="/user/' + data.uploader._id+'">';
+                                            html+= data.uploader.name;
+                                        html+= '</a>';
+                                    html+= '</ins>';
+                                var createdAt = new Date(data.createdAt);
+                                var date = createdAt.getDate() + "";
+                                date = date.padStart(2,"0")+" "+ months[createdAt.getMonth()] +", "+ createdAt.getFullYear();
+                                html+= '<span>Published: '+date+ '</span>';
+                                html+= '</div>';
+
+                                html+= '<div class="post-meta">';
+                                    html+= '<div class="description">';
+                                        html+= '<p>';
+                                            html+= data.caption;
+                                        html+= '</p>';
+                                    html+= '</div>';
+
+                                    if(data.image != ""){
+                                        // html += '<img src"' +mainURL+"/"+ data.image+'">';
+										html += '<img src="' + mainURL + "/" + data.image + '">';
+
+                                    }
+                                    if (data.video != "") {
+										html += '<video style="height: 359px; width: 100%;" controls src="' + mainURL + "/" + data.video + '"></video>';
+									}
+                                    html+= createLikesSection(data);
+                                html+='</div>';
+                                html+='</div>';
+                                html += createCommentsSection(data); 
+							html += "</div>";
+
+						html += '</div>';
+                    }
+				document.getElementById("newsfeed").innerHTML = html;
+            }
+        }
+        var formData = new FormData();
+        formData.append("accessToken", localStorage.getItem("accessToken"));
+        formData.append("_id", document.getElementById("_id").value)
+		ajax.send(formData);
+
+		return false;
+    }
+
+
+    // function doRemove(self){
+    //     var _id = self.getAttribute("data-id");
+    //     console.log(_id," from doRemove");
+    //     var ajax = new XMLHttpRequest();
+    //     ajax.open("POST","/remove", true);
+
+    //     ajax.onreadystatechange = function(){
+    //         if(this.readyState == 4 && this.status == 200){
+    //             var response = JSON.parse(this.responseText);
+    //             alert(response.message);
+    //             self.remove();
+    //         }
+    //     }
+    //     var formData = new FormData();
+    //     formData.append("accessToken", localStorage.getItem("accessToken"));
+    //     formData.append("_id", _id);
+    //     ajax.send(formData);
+    //  }
+
+    function doPost(form){
+        var ajax = new XMLHttpRequest();
+        ajax.open("POST", "/addPost", true);
+
+        ajax.onreadystatechange = function(){
+            if (this.readyState == 4 && this.status == 200) {
+                var response = JSON.parse(this.responseText);
+                alert(response.message);
+                if (response.status == "success") {
+                    document.getElementById("form-add-post").querySelector("input[name='image']").value = "";
+                    document.getElementById("form-add-post").querySelector("input[name='video']").value = "";
+                    document.getElementById("form-add-post").querySelector("textarea[name='caption']").value = "";
+                    document.getElementById("post-img-preview").style.display = "none";
+					document.getElementById("post-video-preview").style.display = "none";
+                    
+                    getGroupDetail();
+                }
+
+            }
+        }
+
+        form.type.value = "group_post";
+		var formData = new FormData(form);
+        formData.append("accessToken", localStorage.getItem("accessToken"));
+        formData.append("_id", document.getElementById("_id").value)
+		ajax.send(formData);
+
+		return false;
+    }
+    function doRemoveMember(self){
+        console.log(self.getAttribute("group-owner"));
+        console.log(self.getAttribute("member-id"));
+        console.log(self.getAttribute("group-id"));
+        var ajax = new XMLHttpRequest();
+        ajax.open("POST","/removeMember", true);
+
+        ajax.onreadystatechange = function(){
+            if (this.readyState == 4 && this.status == 200) {
+                var response = JSON.parse(this.responseText);
+                if (response.status == "success") {
+                alert(response.message);
+                getGroupDetail();
+                }else{
+                alert(response.message);
+                }
+            }
+        }
+        var formData = new FormData();
+        formData.append("accessToken", localStorage.getItem("accessToken"));
+		formData.append("groupOwner", self.getAttribute("group-owner"));
+		formData.append("memberId", self.getAttribute("member-id"));
+		formData.append("groupId", self.getAttribute("group-id"));
+
+		ajax.send(formData);
+        return false;
+    }
+
+</script>
+<%- include("includes/footer") %>

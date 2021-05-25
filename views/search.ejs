@@ -10,6 +10,7 @@
 							<li>
 								<a class="active" data-toggle="tab" href="#people">People</a>
 								<a data-toggle="tab" href="#pages">Pages</a>
+								<a data-toggle="tab" href="#groups">Groups</a>
 								<!-- <a data-toggle="tab" href="#groups">Groups</a> -->
 							</li>
 						</ul>
@@ -29,6 +30,9 @@
 										</div>
 										<div class="tab-pane active fade" id="pages">
 											<ul class="nearby-contct" id="search-result-pages"></ul>
+										</div>
+										<div class="tab-pane active fade" id="groups">
+											<ul class="nearby-contct" id="search-result-groups"></ul>
 										</div>
                                     </div>
                                 </div>
@@ -57,7 +61,9 @@
 				var response = JSON.parse(this.responseText);
 
 				if (response.status == "success") {
-
+					console.log(response.data.length)
+					console.log(response.pages.length)
+					console.log(response.groups.length)
 					var html = "";
 					for (var a = 0; a < response.data.length; a++) {
 						var data = response.data[a];
@@ -115,14 +121,16 @@
 						html += '<li>';
 							html += '<div class="nearly-pepls">';
 								html += '<figure>';
-									html += '<a href="/">';
+									// html += '<a href="/">';
+									html += '<a href="/page/'+data._id+'">';
+
 										html += '<img src="' + mainURL + '/' + data.coverPhoto + '">';
 									html += '</a>';
 								html += '</figure>';
 
 								html += '<div class="pepl-info">';
 									html += '<h4>';
-										html += '<a href="/">' + data.name + '</a>';
+										html += '<a href="/page/'+data._id+'">' + data.name + '</a>';
 									html += '</h4>';
                                         if (isLiked) {
                                             html += '<a href="javascript:void(0);" data-id="'+ data._id+ '" onclick="toggleLikePage(this); " class="add-butn btn-unfriend" >Unlike</a>'
@@ -135,7 +143,48 @@
 						html += '</li>';
 					}
 					document.getElementById("search-result-pages").innerHTML = html;
+					console.log(response.groups)
+					var html = "";
+					for (var a = 0; a< response.groups.length; a++){
+						var data = response.groups[a];
 
+						var isMember = false;
+						for(var b=0; b< window.user.groups.length; b++){
+							var tempData = window.user.groups[b];
+							if(tempData._id.toString() == data._id.toString()){
+								isMember = true;
+								break;
+							}
+						}
+					
+					
+					html += '<li>';
+							html += '<div class="nearly-pepls">';
+								html += '<figure>';
+									html += '<a href="/group/'+data._id+'">';
+										html += '<img src="' + mainURL + '/' + data.coverPhoto + '">';
+									html += '</a>';
+								html += '</figure>';
+								html+= '<div class="pepl-info">';
+									html+= '<h4>';
+										html+= '<a href="/group/'+data._id+'">'+data.name+'</a>';
+									html+= '</h4>';
+										
+										html+= '<span> public group </span>';
+										html+= '<em>' +data.members.length+' Members</em>';
+										if (localStorage.getItem("accessToken")) {
+											if (isMember) {
+												html += '<a href="javascript:void(0);" data-id="'+ data._id+ '" onclick="toggleJoinGroup(this); " class="add-butn btn-unfriend" >Leave</a>'
+												
+											}else{
+												html += '<a href="javascript:void(0);" data-id="'+ data._id+ '" onclick="toggleJoinGroup(this); " class="add-butn" >Join</a>'
+											}
+										}
+								html += '</div>';
+							html += '</div>';
+						html += '</li>';
+									}
+					document.getElementById("search-result-groups").innerHTML = html;
 
 				} else {
 					alert(response.message+"from search.ejs");
@@ -147,6 +196,33 @@
 		formData.append("query", document.getElementById("query").value);
 		ajax.send(formData);
 	}
+
+	function toggleJoinGroup(self){
+		var ajax = new XMLHttpRequest();
+		ajax.open("POST","/toggleJoinGroup", true);
+		ajax.onreadystatechange = function(){
+			if (this.readyState == 4 && this.status == 200) {
+				var response = JSON.parse(this.responseText);
+				if (response.status == "success") {
+					self.className = "add-butn btn-unfriend";
+					self.innerHTML = "Leave";
+				}
+				if (response.status == "leaved") {
+					self.className = "add-butn";
+					self.innerHTML = "Join";
+				}
+				if (response.status == "error") {
+					alert(response.message);
+				}
+			}
+		} 
+
+		var formData = new FormData()
+		formData.append("accessToken", localStorage.getItem("accessToken"));
+		formData.append("_id", self.getAttribute("data-id"));
+		ajax.send(formData);
+	}
+
 
 	function toggleLikePage(self){//recently created
 	// console.log(self.getAttribute("data-id"));
@@ -165,7 +241,7 @@
 					self.innerHTML = "Like";
 				}
 				if (response.status == "error") {
-					alert(response.message);
+					alert(response.message+  "from search");
 				}
 			}
 		}
@@ -182,7 +258,7 @@
 		ajax.onreadystatechange = function(){
 			if (this.readyState == 4 && this.status == 200) {
 				var response = JSON.parse(this.responseText);
-				alert(response.message);
+				alert(response.message+"from serach");
 				self.remove()
 			}
 		}

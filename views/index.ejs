@@ -39,19 +39,25 @@
 			if (this.readyState == 4 && this.status == 200) {
 
 				var response = JSON.parse(this.responseText);
-
-				alert(response.message);
-
-				if (response.status == "success") {
-					document.getElementById("form-add-post").querySelector("input[name='image']").value = "";
-					document.getElementById("form-add-post").querySelector("input[name='video']").value = "";
-					document.getElementById("form-add-post").querySelector("textarea[name='caption']").value = "";
-
-					document.getElementById("post-img-preview").style.display = "none";
-					document.getElementById("post-video-preview").style.display = "none";
-
-					showNewsfeed();
+				if(response.caption == "" && response.image == "" && response.video == ""){
+					alert("Please write something or select image")
 				}
+				else{
+					alert(response.message);
+
+					if (response.status == "success") {
+						document.getElementById("form-add-post").querySelector("input[name='image']").value = "";
+						document.getElementById("form-add-post").querySelector("input[name='video']").value = "";
+						document.getElementById("form-add-post").querySelector("textarea[name='caption']").value = "";
+
+						document.getElementById("post-img-preview").style.display = "none";
+						document.getElementById("post-video-preview").style.display = "none";
+
+						showNewsfeed();
+					}
+				}
+
+				
 			}
 		};
 
@@ -87,7 +93,7 @@
 									html += '<ins>';
 										if (data.type == "post")
 										{
-											html += '<a href="/user/' + data.user.name + '">';//first its username instead of name
+											html += '<a href="/user/' + data.user._id + '">';//first its username instead of name
 												html += data.user.name;
 											html += '</a>';
 										}
@@ -105,10 +111,16 @@
 								html += '</div>';
 
 								html += '<div class="post-meta">';
-
+									var text= data.caption;
+							     	var exp = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+	  								var text1=text.replace(exp, "<a href='$1'>$1</a>");
+	  								var exp2 =/(^|[^\/])(www\.[\S]+(\b|$))/gim;
+	  								var details =text1.replace(exp2, '$1<a target="_blank" href="http://$2">$2</a>');
+									//   console.log(details)
+  
 									html += '<div class="description">';
 										html += '<p>';
-											html += data.caption;
+											html += details;
 										html += '</p>';
 									html += '</div>';
 

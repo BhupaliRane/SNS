@@ -11,6 +11,12 @@ var multer  = require('multer');
 const mv = require('mv');
 const { ObjectId } = require('mongodb');
 const { ObjectID } = require('mongodb');
+const sgMail = require('@sendgrid/mail')
+
+const API_KEY = 
+'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'
+
+sgMail.setApiKey(API_KEY)
 
 var upload = multer({ dest: './public/images'});
 
@@ -22,10 +28,10 @@ var users = [];
 // const socketIO = req.app.get('socketio');
 const MongoClient = mongodb.MongoClient;
 
-MongoClient.connect("mongodb://localhost:27017",{useUnifiedTopology: true}, function (err, client) {
+MongoClient.connect("mongodb+srv://bhupali:bhupali@cluster0.6myji.mongodb.net/myFirstDatabase?retryWrites=true&w=majority",{useUnifiedTopology: true}, function (err, client) {
      if(err) throw err;
         var database = client.db("my_social_network");
-        console.log("database connectected");
+        console.log("database connected");
         
         router.post('/signup', (req, res) =>{
             var name = req.fields.name;
@@ -62,7 +68,7 @@ MongoClient.connect("mongodb://localhost:27017",{useUnifiedTopology: true}, func
                             "isVerify": false
                         }, (error, data) =>{
                             res.json({
-                                "status":"success",
+                                "status": "success",
                                 "message": "Signed up successfiully. You can login now"
                             })
                         })
@@ -87,7 +93,7 @@ MongoClient.connect("mongodb://localhost:27017",{useUnifiedTopology: true}, func
 
         router.post('/login', (req, res) =>{
             database.collection("users").findOne({
-                email: req.fields.email
+                "email": req.fields.email
             }, (err, user) =>{
                 if (user == null) {
                     res.json({
@@ -424,6 +430,62 @@ MongoClient.connect("mongodb://localhost:27017",{useUnifiedTopology: true}, func
 
                                 }
                             })
+                        }else if(type == "group_post"){
+                            database.collection("groups").findOne({
+                                "_id": mongodb.ObjectId(_id)
+                            }, (error, group) =>{
+                              if (group == null) {
+                                res.json({
+                                    "status": "error",
+                                    "message": "Group does not exist"
+                                });
+                                return;
+                              }else{
+                                var isMember = false;
+                                for(var a= 0; a< group.members.length; a++){
+                                    var member = group.members[a];
+                                    if (member._id.toString() == user._id.toString()) {
+                                        isMember = true;
+                                        break;
+                                    }
+                                }
+                                if (!isMember) {
+                                    res.json({
+                                        "status": "error",
+                                        "message": "Sorry, you are not a member of this group."
+                                    });
+                                    return;
+                                }
+                              }
+                              database.collection("posts").insertOne({
+                                "caption": caption,
+                                "image": image,
+                                "video": video,
+                                "type": type,
+                                "createdAt": createdAt,
+                                "likers":[],
+                                "comments":[],
+                                "shares":[],
+                                "user":{
+                                    "_id": group._id,
+                                    "name": group.name,
+                                    "profileImage": group.coverPhoto
+                                },
+                                "uploader":{
+                                    "_id": user._id,
+                                    "name": user.name,
+                                    "profileImage": user.profileImage
+                                }
+    
+                            }, (err, data)=>{
+                                res.json({
+                                    "status": "success",
+                                    "message": "Post has been uploaded"
+                                })
+                               
+                            })
+
+                            })
                         }else{
                             
                         database.collection("posts").insertOne({
@@ -476,7 +538,7 @@ MongoClient.connect("mongodb://localhost:27017",{useUnifiedTopology: true}, func
             res.render('index')
         })
 
-         router.post('/getNewsfeed', (req, res) =>{
+        router.post('/getNewsfeed', (req, res) =>{
              var accessToken = req.fields.accessToken;
 
              database.collection("users").findOne({
@@ -492,9 +554,18 @@ MongoClient.connect("mongodb://localhost:27017",{useUnifiedTopology: true}, func
                      ids.push(user._id);
                     for(var a = 0; a< user.pages.length; a++){
                         ids.push(user.pages[a]._id)
+                    }//this for loop[ fetched post from liked pages of its friends]
+                    
+                    for(var a = 0; a< user.groups.length; a++){
+                        if(user.groups[a].status == "Accepted"){
+                            ids.push(user.groups[a]._id)
+                        }   
+                    }
+                    for(var a = 0; a< user.friends.length; a++){
+                        ids.push(user.friends[a]._id)
                     }//this for loop[ fetched post from liked pages of its frieds]
-
-                     database.collection("posts").find({
+                    
+                    database.collection("posts").find({
                          "user._id":{
                              $in: ids
                          }
@@ -583,7 +654,7 @@ MongoClient.connect("mongodb://localhost:27017",{useUnifiedTopology: true}, func
                                         "notifications":{
                                             "_id": mongodb.ObjectId(),
                                             "type": "photo_liked",
-                                            "content": user.name + "has liked your photo.",
+                                            "content": user.name + " has liked your photo.",
                                             "profileImage": user.profileImage,
                                             "createdAt": new Date().getTime()
                                         }
@@ -685,7 +756,7 @@ MongoClient.connect("mongodb://localhost:27017",{useUnifiedTopology: true}, func
                                             "notifications":{
                                                 "_id": mongodb.ObjectId(),
                                                 "type": "new_comment",
-                                                "content": user.name + "commented on your post.",
+                                                "content": user.name + " commented on your post.",
                                                 "profileImage": user.profileImage,
                                                 "createdAt": new Date().getTime()
                                             }
@@ -835,12 +906,22 @@ MongoClient.connect("mongodb://localhost:27017",{useUnifiedTopology: true}, func
                         $options: "i"
                     }
                 }).toArray((err, pages) =>{
-                    res.json({
-                        "status": "success",
-                        "message": "Record has been fetched",
-                        "data": data,
-                        "pages": pages
+                    database.collection("groups").find({
+                        "name":{
+                            $regex: ".*"+ query + ".*",
+                            $options: "i"
+                        }
+                    }).toArray((err, groups) =>{
+                        res.json({
+                            "status": "success",
+                            "message": "Record has been fetched",
+                            "data": data,
+                            "pages": pages,
+                            "groups": groups
+                        });
                     });
+
+                    
                 })
             })
         })
@@ -943,7 +1024,7 @@ MongoClient.connect("mongodb://localhost:27017",{useUnifiedTopology: true}, func
                                     "notifications":{
                                         "_id": mongodb.ObjectId(),
                                         "type": "friend_request_accepted",
-                                        "content": me.name + "accepted your friend request.",
+                                        "content": me.name + " accepted your friend request.",
                                         "profileImage": me.profileImage,
                                         "createdAt": new Date().getTime()
                                     }
@@ -1038,6 +1119,7 @@ MongoClient.connect("mongodb://localhost:27017",{useUnifiedTopology: true}, func
                 }
             })
         })
+
 
         router.get('/inbox', (req, res) =>{
             res.render('inbox');
@@ -1427,6 +1509,944 @@ MongoClient.connect("mongodb://localhost:27017",{useUnifiedTopology: true}, func
             })
         })
 
-    });//this is main paranthesis plz dont touch this
+        router.get("/createGroup",(req, res) =>{
+            res.render("createGroup")
+        })
+
+        router.post("/createGroup",(req, res) =>{
+            var accessToken = req.fields.accessToken;
+            var name = req.fields.name;
+            var additionalInfo = req.fields.additionalInfo;
+            var coverPhoto = "";  
+
+            database.collection("users").findOne({
+                "accessToken": accessToken
+            },(error, user) =>{
+                if(user == null){
+                    res.json({
+                        "status":"error",
+                        "message": "User has benn logged out.Please login again"
+                    })
+                }else{
+                    if(req.files.coverPhoto.size > 0 && req.files.coverPhoto.type.includes("image")){
+                        coverPhoto = "public/images/" + new Date().getTime() + "-"+ req.files.coverPhoto.name;
+                        mv(req.files.coverPhoto.path, coverPhoto, (err) =>{
+                            if (err) {
+                                        console.log('> FileServer.jsx | route: "/files/upload" | err:', err);
+                                        throw err;
+                                    }
+                        })
+                        database.collection("groups").insertOne({
+                            "name": name,
+                            "additionalInfo": additionalInfo,
+                            "coverPhoto": coverPhoto,
+                            "members":[{
+                                "_id": user._id,
+                                "name": user.name,
+                                "profileImage": user.profileImage,
+                                "status": "Accepted"
+                            }],
+                            "user":{
+                                "_id": user._id,
+                                "name": user.name,
+                                "profileImage": user.profileImage
+                            }
+                        },(error, data) =>{
+                            database.collection("users").updateOne({
+                                "accessToken": accessToken
+                            },{
+                                $push:{
+                                    "groups":{
+                                        "_id": data.insertedId,
+                                        "name": name,
+                                        "coverPhoto": coverPhoto,
+                                        "status": "Accepted"
+                                    }
+                                }
+                            },(error, data) =>{
+                                res.json({
+                                    "status": "success",
+                                    "message": "Group has been created"
+                                })
+                            })
+                        })
+
+                    }else{
+                        res.json({
+                            "status":"error",
+                            "message" : "Please select a cover photo."
+                        })
+
+                    }
+                }
+            })
+
+
+        })
+
+
+        router.get("/groups", (req, res) =>{
+            res.render("groups");
+        })
+
+        router.post("/getGroups", (req, res) =>{
+            accessToken = req.fields.accessToken;
+            database.collection("users").findOne({
+                "accessToken": accessToken
+            },(err, user)=>{
+                if(user == null){
+                    res.json({
+                        "status": "error",
+                        "message": "User has been logged out.Please login again."
+                    })
+                }else{
+                    database.collection("groups").find({
+                        $or: [{
+                            "user._id": user._id
+                        },{
+                            "members._id": user._id
+                        }]
+                    }).toArray((error, data) =>{
+                        res.json({
+                            "status": "success",
+                            "message": "Record has been fetched.",
+                            "data": data
+                        })
+                    })
+                }
+            })
+        })
+
+        router.get("/group/:_id",(req, res) =>{
+            var  _id = req.params._id;
+
+            database.collection("groups").findOne({
+                "_id": mongodb.ObjectId(_id)
+            },(error, group) =>{
+                if(group == null){
+                    res.json({
+                        "status": "error",
+                        "message": "Group does not exist."
+                    })
+                }else{
+                    res.render("singleGroup", {"_id": _id});
+                }
+            })
+        })
+
+        router.post('/getGroupDetail', (req,res) =>{
+            var _id = req.fields._id;
+            database.collection("groups").findOne({
+                "_id": mongodb.ObjectId(_id)
+            },(error, group) =>{
+                if(group == null){
+                    res.json({
+                        "status": "error",
+                        "message": "Group does not exist."
+                    });
+                }else{
+                    database.collection("posts").find({
+                        $and:[{
+                            "user._id": group._id
+                        },{
+                            "type": "group_post"
+                        }]
+                    }).toArray((error, posts) =>{
+                        res.json({
+                            "status": "success",
+                            "message": "Record has been fetched.",
+                            "data": group,
+                            "posts": posts
+                        })
+                    })
+                }
+            })
+        })
+
+        router.post("/toggleJoinGroup", (req, res) =>{
+            var accessToken = req.fields.accessToken;
+            var _id = req.fields._id;
+
+            database.collection("users").findOne({
+                "accessToken": accessToken
+            },(error, user) =>{
+                if(user == null){
+                    res.json({
+                        "status": "error",
+                        "message": "User has benn logged out.Please login again."
+                    })
+                }else{
+                    database.collection("groups").findOne({
+                        "_id": mongodb.ObjectId(_id)
+                    }, (error, group) =>{
+                        if (group == null) {
+                            res.json({
+                                "status": "error",
+                                "message": "Group does not exist."
+                            });
+                        }else{
+                            var isMember = false;
+                            for(var a = 0; a< group.members.length; a++){
+                                var member = group.members[a];
+                                if(member._id.toString() == user._id.toString()){
+                                    isMember = true;
+                                    break;
+                                }
+                            }
+                            if(isMember){
+                                database.collection("groups").updateOne({
+                                    "_id": mongodb.ObjectId(_id)
+                                },
+                                {
+                                    $pull:{
+                                        "members":{
+                                            "_id": user._id,
+                                        }
+                                    }
+                                },(error, data) =>{
+                                    database.collection("users").updateOne({
+                                        "accessToken": accessToken
+                                    },{
+                                        $pull: {
+                                            "groups": {
+                                                "_id": mongodb.ObjectId(_id)
+                                            }
+                                        }
+                                    },(error, data) =>{
+                                        res.json({
+                                            "status": "leaved",
+                                            "message": "Group has been left."
+                                        })
+                                    })
+                                })
+                            }else{
+
+
+                                database.collection("groups").updateOne({
+                                    "_id": mongodb.ObjectId(_id)
+                                },
+                                {
+                                    $push:{
+                                        "members":{
+                                            "_id": user._id,
+                                            "name": user.name,
+                                            "profileImage": user.profileImage,
+                                            "status": "Pending"
+                                        }
+                                    }
+                                },(error, data) =>{
+                                    database.collection("users").updateOne({
+                                        "accessToken": accessToken
+                                    },{
+                                        $push: {
+                                            "groups": {
+                                                "_id": group._id,
+                                                "name": group.name,
+                                                "coverPhoto": group.coverPhoto,
+                                                "status": "Pending"
+                                            }
+                                        }
+                                    },(error, data) =>{
+                                      database.collection("users").updateOne({
+                                          "_id": group.user._id
+                                      },{
+                                          $push:{
+                                              "notifications":{
+                                                  "_id": mongodb.ObjectId(),
+                                                  "type": "group_join_request",
+                                                  "content": user.name + " sent a request to join your group",
+                                                  "profileImage": user.profileImage,
+                                                  "groupId": group._id,
+                                                  "userId": user._id,//jyane join kelay tyacha user id
+                                                  "status": "Pending",
+                                                  "createdAt": new Date().getTime()
+                                              }
+                                          }
+                                      })
+                                      res.json({
+                                        "status": "success",
+                                        "message": "Request to join group has been sent."
+                                    })
+                                    })
+                                })
+                            }
+                        }
+                    })
+                } 
+            })
+        })
+
+        router.get("/notifications", (req, res) =>{
+            res.render("notifications")
+        })
+
+    router.post("/acceptRequestJoinGroup", (req, res) =>{
+        var accessToken = req.fields.accessToken;
+        var _id = req.fields._id;
+        var groupId = req.fields.groupId;
+        var userId = req.fields.userId;
+
+        database.collection("users").findOne({
+            "accessToken": accessToken
+        },(error, user) =>{
+            if(user == null){
+                res.json({
+                    "status": "error", 
+                    "message": "User has been logged out.Please login again."
+                })
+            }else{
+                database.collection("groups").findOne({
+                    "_id": mongodb.ObjectId(groupId)
+                },(error, group) =>{
+                    if (group == null) {
+                        res.json({
+                            "status": "error",
+                            "message": "Group does not exist."
+                        })
+                    }else{
+                        if (group.user._id.toString() != user._id.toString()) {
+                            res.json({
+                                "status": "error",
+                                "message": "Sorry, you do not own this group."
+                            })
+                            return;
+                        }
+                        database.collection("groups").updateOne({
+                            $and: [{
+                                "_id": group._id
+                            },{
+                                "members._id": mongodb.ObjectId(userId)
+                            }]
+                        },{
+                            $set: {
+                                "members.$.status": "Accepted"
+                            }
+                        },(error, data) =>{
+                            //has to be change.
+                            database.collection("users").updateOne({
+                                $and:[
+                                    {"accessToken": accessToken},
+                                    {"notifications._id": mongodb.ObjectId(_id)},
+                                    // {"notifications.userId": userId}
+                                ]
+                            },{
+                                $set:{
+                                    "notifications.$.status": "Accepted"
+                                }
+                            },(error, data) =>{
+                                database.collection("users").updateOne({
+                                    $and: [
+                                        {"_id": mongodb.ObjectId(userId)},
+                                        {"groups._id": group._id}
+                                    ]
+                                },{
+                                    $set:{
+                                        "groups.$.status":  "Accepted"
+                                    }
+                                },(error, data) =>{
+                                    res.json({
+                                        "status": "success",
+                                        "message": "Group join request has been accepted"
+                                    })
+                                })
+                            })
+
+                        })
+                    }
+                })
+            }
+        })
+    })
+
+    router.post("/rejectRequestJoinGroup",(req, res)=>{
+        var accessToken = req.fields.accessToken;
+        var _id = req.fields._id;
+        var groupId = req.fields.groupId;
+        var userId = req.fields.userId;
+
+        database.collection("users").findOne({
+            "accessToken": accessToken
+        },(error, user) =>{
+            if(user == null){
+                res.json({
+                    "status": "error",
+                    "message": "User has been logged out.Please login again."
+                })
+            }else{
+                database.collection("groups").findOne({
+                    "_id": mongodb.ObjectId(groupId)
+                },(error, group) =>{
+                    if(group == null){
+                        res.json({
+                            "status": "error",
+                            "message": "Group does not exist."
+                        })
+                    }else{
+                        if (group.user._id.toString() != user._id.toString()) {
+                            res.json({
+                                "status": "error",
+                                "message": "Sorry, you do not own this group."
+                            })
+                            return;
+                        }
+                        database.collection("groups").updateOne({
+                            "_id": group._id
+                        },{
+                            $pull: {
+                                "members":{
+                                    "_id": mongodb.ObjectId(userId)
+                                }
+                            }
+                        },(error, data) =>{
+                            database.collection("users").updateOne({
+                                $and : [{
+                                "accessToken": accessToken
+                            },{
+                                "notifications.userId" : mongodb.ObjectId(userId)
+                            }]
+                            },{
+                                $pull:{
+                                    "notifications":{
+                                        "_id" : mongodb.ObjectId(_id),
+                                        "groupId": group._id,
+                                        "userId" : mongodb.ObjectId(userId)
+                                    }
+                                }
+                            },(error, data) =>{
+                                database.collection("users").updateOne({
+                                    "_id": mongodb.ObjectId(userId)
+                                },{
+                                    $pull:{
+                                        "groups":{
+                                            "_id": group._id
+                                        }
+                                    }
+                                },(error, data)=>{
+                                      res.json({
+                                          "status": "success",
+                                          "message": "Group join request has been rejected."
+                                      })
+                                })
+                            })
+                        } )
+                    }
+                })
+            }
+        })
+    })
+
+    router.get("/forget", (req, res) =>{
+        res.render("forget")
+    })
+    router.post("/sendMail", (req, res) =>{
+        const email = req.fields.email;
+
+        database.collection("users").findOne({
+            "email": email
+        },(error, user) =>{
+            // console.log(user)
+            if(user == null){
+                res.json({
+                        "status": "error",
+                        "message": "User does not exist"
+                    })
+            }else{
+                var link = `${mainURL}/changepassword/${user.accessToken}/${user._id}`
+                const message = {
+                    to: user.email,
+                    from: {
+                        name: 'Social media',
+                        email: 'borgedata@gmail.com'
+                    },
+                    subject: 'Reset Link',
+                    text: `this is a text`,
+                    // hrml: '<a>link is here</a>'
+                    html: `<a href="${link}">Reset Link</a>`
+
+                }
+                sgMail
+                    .send(message)
+                    .then(sent =>{ console.log("EMail sent")
+                    res.json({
+                        "status": "success",
+                        "message": "Mail sent successfully"
+                    })
+                    })
+                    .catch(err => {
+                        console.log(err.message)
+                        res.json({
+                            "status": "error",
+                            "message": "failed to send mail"
+                        })
+                    })
+            }
+        })
+    })
+
+
+    router.get("/changepassword/:accessToken/:id",(req, res) =>{
+        const _id = req.params.id;
+        var email = null;
+        database.collection("users").findOne({"_id": mongodb.ObjectId(_id)},(error, user) =>{
+            if(user == null){
+                res.json({
+                    "status": "error",
+                    "message": "User does not exist"
+                })
+            }else{
+                email = user.email;
+                res.render("forgetNewpassword",{"email": email, "_id": _id})
+            }
+            // res.render("singlePage", {
+            //     "_id": _id
+            // })
+            
+        })
+        // ḍatabase.collection("users").findOne
+    })
+
+    router.post("/saveNewPassword",(req, res) =>{
+        const _id = req.fields._id;
+        const email = req.fields.email;
+        const password = req.fields.password;
+        const cpassword = req.fields.cpassword;
+        console.log(_id,email,password,cpassword)
+        if(password == cpassword){
+            database.collection("users").find({
+                $and: [{
+                    "_id": mongodb.ObjectId(_id)
+                },{
+                    "email": email
+                }]
+            },(error, user) =>{
+                if(user == null){
+                    res.json({
+                        "status": "error",
+                        "message": "User does not exist"
+                    })
+                }else{
+                    // console.log(user)
+                    // res.json({
+                    //     "status": "success",
+                    //     "message": "Password updated successfully"
+                    // })
+                    bcrypt.hash(password, 10, (error, hash) =>{
+                        database.collection('users').updateOne({
+                            $and: [{
+                                "_id": mongodb.ObjectId(_id)
+                            },{
+                                "email": email
+                            }]
+                        },{$set:{"password": hash}},(error, data) =>{
+                            console.log(user)
+                            res.json({
+                                "status": "success",
+                                "message": "Password updated successfully"
+                            })
+                        })
+                    })
+
+                }
+            })
+        }else{
+            res.json({
+                "status": "error",
+                "message": "Password not matched"
+            })
+        }
+    })
+
+
+//store notification lengh while user logged out
+router.post("/fetchNotificationLength", (req, res) =>{//storing notification length
+    var accessToken = req.fields.accessToken;
+
+    database.collection("users").findOne({
+        "accessToken": accessToken
+    },(error, user) =>{
+        if(user == null){
+            res.json({
+                "status": "error",
+                "message": "User has been logged out,Please login again."
+            });
+        }else{
+            // console.log(user._id)
+            database.collection("users").findOneAndUpdate({"_id": mongodb.ObjectId(user._id)}, {$set:{"notificationLength": user.notifications.length}},(error, data) =>{
+                res.json({
+                    "status": "success",
+                    "message": "notification length updated successfully"
+                })
+            })  
+           
+        }
+    })
+})
+
+//showing in left side bar
+router.post("/updateNotificationLength", (req, res) =>{//fetching current notification length
+    var accessToken = req.fields.accessToken;
+   console.log("woknig now");
+    database.collection("users").findOne({
+        "accessToken": accessToken
+    },(error, user) =>{
+        if(user == null){
+            console.log("error")
+            res.json({
+                "status": "error",
+                "message": "User has been logged out,Please login again."
+            });
+        }else{
+
+            // console.log(user.notifications.length)
+            // database.collection("users").findOneAndUpdate({"_id": mongodb.ObjectId(user._id)}, {$set:{"notificationLength": user.notifications.length}},(error, data) =>{
+                console.log("Notification lenght updated")
+                res.json({
+                    "status": "success",
+                    "message": "notification length updated successfully",
+                    "notLen": user.notifications.length,
+                    "prevnotLen": user.notificationLength
+                })
+            
+        
+        }
+    })
+})
+
+router.post("/fetchFriendsLength", (req, res) =>{//storing notification length
+    var accessToken = req.fields.accessToken;
+
+    database.collection("users").findOne({
+        "accessToken": accessToken
+    },(error, user) =>{
+        if(user == null){
+            res.json({
+                "status": "error",
+                "message": "User has been logged out,Please login again."
+            });
+        }else{
+            // console.log(user._id)
+            database.collection("users").findOneAndUpdate({"_id": mongodb.ObjectId(user._id)}, {$set:{"friendsLength": user.friends.length}},(error, data) =>{
+                res.json({
+                    "status": "success",
+                    "message": "friends length updated successfully"
+                })
+            })  
+           
+        }
+    })
+})
+
+
+router.post("/updateFriendsLength", (req, res) =>{//fetching current notification length
+    var accessToken = req.fields.accessToken;
+//    console.log("woknig now");
+    database.collection("users").findOne({
+        "accessToken": accessToken
+    },(error, user) =>{
+        if(user == null){
+            console.log("error")
+            res.json({
+                "status": "error",
+                "message": "User has been logged out,Please login again."
+            });
+        }else{
+
+            // console.log(user.notifications.length)
+            // database.collection("users").findOneAndUpdate({"_id": mongodb.ObjectId(user._id)}, {$set:{"notificationLength": user.notifications.length}},(error, data) =>{
+                // console.log("Notification lenght updated")
+                res.json({
+                    "status": "success",
+                    "message": "notification length updated successfully",
+                    "notLen": user.friends.length,
+                    "prevnotLen": user.friendsLength
+                })
+            
+        
+        }
+    })
+})
+
+
+    router.post("/removeMember",(req,res)=>{
+        // console.log(req.fields);
+        var accessToken = req.fields.accessToken;//curruntly logged user or ADmin
+        var groupOwner = req.fields.groupOwner;//owner of group and logged user or ADMIN
+        var memberId = req.fields.memberId;//id of member to remove from groups
+        var groupId = req.fields.groupId;//id of group
+        database.collection("users").findOne({
+            "accessToken": accessToken
+        },(error, user)=>{
+            if(user == null){
+                res.json({
+                    "status": "error",
+                    "message": "User has been logged out,Please login again."
+                });
+            }else{
+                if(user._id.toString() != groupOwner.toString()){
+                    res.json({
+                        "status": "error",
+                        "message": "You are not an owner of this group."
+                    });
+                }else{
+                        database.collection('groups').updateOne({
+                            "_id": mongodb.ObjectId(groupId)
+                        },{
+                            $pull:{
+                                "members":{
+                                    "_id": mongodb.ObjectId(memberId)
+                                }
+                            }
+                        },(error, data) =>{
+                            database.collection("users").updateOne({
+                                "_id": mongodb.ObjectId(memberId)
+                            },{
+                                $pull:{
+                                    "groups":{
+                                        "_id": mongodb.ObjectId(groupId)
+                                    }
+                                
+                                }
+                            },(error, data)=>{
+                              database.collection("users").findOne({
+                                  "_id": mongodb.ObjectId(groupOwner)
+                              },(error, groupHead) =>{
+                                  database.collection("users").updateOne({
+                                      "_id": mongodb.ObjectId(memberId)
+                                  },{
+                                      $push:{
+                                          "notifications":{
+                                              "_id": mongodb.ObjectId(),
+                                              "type": "removed_group",
+                                              "content": groupHead.name + " removed you from group",
+                                              "profileImage": groupHead.profileImage,
+                                              "createdAt": new Date().getTime()
+                                          }
+                                      }
+                                  },(error, data) =>{
+                                      res.json({
+                                          "status": "success",
+                                          "message": "User removed successfully"
+                                      })
+                                  })
+                              })  
+                            })
+                        })//
+                }
+            }
+        })
+    })
+
+
+
+    
+    router.post("/sharePost",function(req,res){
+
+        var accessToken = req.fields.accessToken;
+        var _id = req.fields._id;
+        var type = "shared";
+        var createdAt = new Date().getTime();
+
+        database.collection("users").findOne({
+            "accessToken":accessToken
+        }, function(error,user){
+            if(user==null){
+                res.json({
+                    "status":"error",
+                    "message":"user has been logged out.please login again"
+                })
+            }
+
+            else{
+                database.collection("posts").findOne({
+                    "_id":mongodb.ObjectId(_id)
+                },
+                function(error,post){
+                    if(post==null){
+                        res.json({
+                            "status":"error",
+                            "message":"post does not exists"
+                        })
+                    }
+                    else{
+
+                        database.collection("posts").updateOne({
+                            "id": mongodb.ObjectId(_id)
+                        },
+                        
+                        {
+                            $push:{
+                                "shares":{
+                                    "_id":user._id,
+                                    "name":user.name,
+                                    "profileImage":user.profileImage
+                                }
+                            }
+                        }, function (error, data){
+                            database.collection("posts").insertOne({
+                                "caption":post.caption,
+                                "image":post.image,
+                                "video":post.video,
+                                "type":type,
+                                "createdAt":createdAt,
+                                "likers":[],
+                                "comments":[],
+                                "shares":[],
+                                "user":{
+                                    "_id":user._id,
+                                    "name":user.name,
+                                    "gender":user.gender,
+                                    "profileImage":user.profileImage
+                                }
+                            },
+                            
+                            
+                            function(error,data){
+                               database.collection("users").updateOne({
+                                $and:[{
+                                    "_id":post.user._id
+                                },{
+                                    "posts._id":post._id
+
+                                }]
+                               },
+                               
+                               
+                               {
+                                   $push:{
+                                       "post.$[].shares":{
+                                           "_id":user._id,
+                                           "name":user.name,
+                                           "profileImage":user.profileImage
+                                       }
+                                   }
+                               });
+
+                               res.json({
+                                   "status":"success",
+                                   "message":"posts has been shared."
+                               });
+                            });
+                            
+                        });
+                       
+                    }
+                });
+               
+            }
+        })
+    
+
+    });
+
+    router.get("/user/:id",(req, res) =>{
+        var _id = req.params.id;
+        console.log(_id)
+        database.collection("users").findOne({
+            "_id": mongodb.ObjectID(_id)
+        },(error,user) =>{
+            console.log(user)
+            if(user == null){
+                res.end("user not found in database");
+            }else{
+                res.render("userDetails", {"user": user, "coverPhoto": mainURL+'/'+user.coverPhoto,"profilePhoto": mainURL+'/'+user.profileImage})
+            }
+        })
+
+    })
+
+    router.post("/getMyPosts",(req, res) =>{
+
+        var accessToken = req.fields.accessToken;
+
+             database.collection("users").findOne({
+                 "accessToken": accessToken
+             },(err, user) =>{
+                 if (user == null) {
+                     res.json({
+                         "status":"error",
+                         "message":"User has been logged out.Please login again"
+                     })
+                 }else{
+                     var ids = [];
+                     ids.push(user._id);
+                    // for(var a = 0; a< user.pages.length; a++){
+                    //     ids.push(user.pages[a]._id)
+                    // }//this for loop[ fetched post from liked pages of its friends]
+                    
+                    // for(var a = 0; a< user.groups.length; a++){
+                    //     if(user.groups[a].status == "Accepted"){
+                    //         ids.push(user.groups[a]._id)
+                    //     }   
+                    // }
+                    // for(var a = 0; a< user.friends.length; a++){
+                    //     ids.push(user.friends[a]._id)
+                    // }//this for loop[ fetched post from liked pages of its frieds]
+                    
+                    database.collection("posts").find({
+                         "user._id":{
+                             $in: ids
+                         }
+                     }).sort({
+                         "createdAt": -1
+                     }).limit(15).toArray((err, data) =>{
+                         res.json({
+                             "status":"success",
+                             "message":"Record has been fetched",
+                             "data": data
+                         })
+                     })
+
+                 }
+             })
+
+    })
+ 
+    router.post("/deletePost",(req, res) =>{
+        var accessToken = req.fields.accessToken;
+        var postId = req.fields.postId;
+
+         database.collection("users").findOne({
+             "accessToken": accessToken
+         },(error, user) =>{
+             if(user == null){
+                res.json({
+                    "status":"error",
+                    "message":"User has been logged out.Please login again"
+                })
+             }else{
+                //  console.log(postId);
+                database.collection("users").updateOne({
+                    $and:[{
+                        "_id": user._id
+                    },{
+                        "posts._id": mongodb.ObjectID(postId)
+                    }]
+                },{
+                    $pull:{
+                        "posts":{
+                            "_id":  mongodb.ObjectID(postId)
+                        }
+                    }
+                },(error, data) =>{
+                    database.collection("posts").findOneAndDelete({
+                        "_id": mongodb.ObjectID(postId)
+                    },(error,data) =>{
+                        res.json({
+                            "status":"success",
+                            "message":"delete this post"
+                        })
+                    })
+                })
+                 
+             }
+         })
+
+    })
+
+
+
+
+});//this is main paranthesis plz dont touch this
+
 
 module.exports = router
